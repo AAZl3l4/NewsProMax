@@ -1,7 +1,7 @@
-package com.AAZl3l4.UserServe;
+package com.AAZl3l3.NettyWSserve;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 
@@ -19,22 +19,18 @@ import org.springframework.context.annotation.Import;
         com.AAZl3l4.common.configuration.WebMvcConfig.class,
         // 添加全局异常处理
         com.AAZl3l4.common.configuration.GlobalExceptionHandler.class,
-        // 添加redis配置
-        com.AAZl3l4.common.configuration.RedisConfig.class,
         // 添加feign客户端配置
         com.AAZl3l4.common.configuration.FeignApiConfig.class,
-        // 添加aop配置
-        com.AAZl3l4.common.configuration.AopConfig.class,
         // 添加feign fallback
-        com.AAZl3l4.common.feignApi.FileServeApiFallbackFactory.class,
+        com.AAZl3l4.common.feignApi.UserServeApiFallbackFactory.class,
         // 添加异步线程池
         com.AAZl3l4.common.configuration.AsyncConfig.class,
 })
 @EnableFeignClients(basePackages = "com.AAZl3l4.common.feignApi")
-public class UserServeApplication {
+public class NettyApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(UserServeApplication.class, args);
+        new SpringApplicationBuilder(NettyApplication.class).run(args);
     }
-
 }
+

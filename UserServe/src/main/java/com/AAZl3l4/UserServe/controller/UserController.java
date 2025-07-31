@@ -4,7 +4,6 @@ package com.AAZl3l4.UserServe.controller;
 import com.AAZl3l4.UserServe.service.FaceService;
 import com.AAZl3l4.UserServe.service.impl.UserServiceImpl;
 import com.AAZl3l4.UserServe.utils.JwtUtil;
-import com.AAZl3l4.UserServe.utils.MailService;
 import com.AAZl3l4.common.feignApi.FileServeApi;
 import com.AAZl3l4.common.feignApi.UserServepi;
 import com.AAZl3l4.common.pojo.User;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @RestController
@@ -36,59 +36,59 @@ public class UserController implements UserServepi {
     @Autowired
     private FaceService faceService;
 
-//    @GetMapping("/login")
-//    public Result login() {
-//        //模拟用户 测试登录 返回token
-//        User user1 = new User();
-//        user1.setId(1);
-//        user1.setName("admin");
-//        user1.setRoles("user");
-//        user1.setPassword(null);
-//        String s = jwtUtil.create(user1);
-//        return Result.succeed(s);
-//    }
-
-    @PostMapping("/login")
-    @Operation(summary = "用户登录")
-    public Result login(@RequestBody User user,
-                        @RequestParam("imgCode") String imgCode,
-                        @RequestParam("emailCode") String emailCode,
-                        @RequestHeader("uuid") String uuid,
-                        @RequestPart("imgBase64") String imgBase64) {
-        // 判断验证码和邮箱验证
-        //注意 code 是通过 ？的参数传递的
-        String iCode = (String) redisTemplate.opsForValue().get("imgCode:" + uuid);
-        if (iCode == null ||!iCode.equals(imgCode)){
-            return Result.error("验证码错误或已过期");
-        }
-        String eCode = (String) redisTemplate.opsForValue().get("emailCode:"+user.getEmail());
-        if (eCode == null || !eCode.equals(emailCode)){
-            return Result.error("邮箱验证码错误或已过期");
-        }
-
-        //判断人脸图片是否存在
-        if (imgBase64 == null || imgBase64.isEmpty()){
-            return Result.error("请上传人脸图片");
-        }
-
-        //通过邮箱查询用户 进行登录
-        User user1 = userService.getOne(new QueryWrapper<User>().eq("email", user.getEmail()));
-        if (user1 == null) {
-            return Result.error("用户不存在");
-        }
-        if (!user1.getPassword().equals(user.getPassword())) {
-            return Result.error("用户密码错误");
-        }
-
-        boolean b = faceService.compareWithUser(imgBase64, "public", String.valueOf(user1));
-        if (!b) {
-            return Result.error("人脸对比失败");
-        }
-        // 设置jwt 不携带密码
+    @GetMapping("/login")
+    public Result login() {
+        //模拟用户 测试登录 返回token
+        User user1 = new User();
+        user1.setId(2);
+        user1.setName("user");
+        user1.setRoles("user");
         user1.setPassword(null);
         String s = jwtUtil.create(user1);
         return Result.succeed(s);
     }
+
+//    @PostMapping("/login")
+//    @Operation(summary = "用户登录")
+//    public Result login(@RequestBody User user,
+//                        @RequestParam("imgCode") String imgCode,
+//                        @RequestParam("emailCode") String emailCode,
+//                        @RequestHeader("uuid") String uuid,
+//                        @RequestPart("imgBase64") String imgBase64) {
+//        // 判断验证码和邮箱验证
+//        //注意 code 是通过 ？的参数传递的
+//        String iCode = (String) redisTemplate.opsForValue().get("imgCode:" + uuid);
+//        if (iCode == null ||!iCode.equals(imgCode)){
+//            return Result.error("验证码错误或已过期");
+//        }
+//        String eCode = (String) redisTemplate.opsForValue().get("emailCode:"+user.getEmail());
+//        if (eCode == null || !eCode.equals(emailCode)){
+//            return Result.error("邮箱验证码错误或已过期");
+//        }
+//
+//        //判断人脸图片是否存在
+//        if (imgBase64 == null || imgBase64.isEmpty()){
+//            return Result.error("请上传人脸图片");
+//        }
+//
+//        //通过邮箱查询用户 进行登录
+//        User user1 = userService.getOne(new QueryWrapper<User>().eq("email", user.getEmail()));
+//        if (user1 == null) {
+//            return Result.error("用户不存在");
+//        }
+//        if (!user1.getPassword().equals(user.getPassword())) {
+//            return Result.error("用户密码错误");
+//        }
+//
+//        boolean b = faceService.compareWithUser(imgBase64, "public", String.valueOf(user1));
+//        if (!b) {
+//            return Result.error("人脸对比失败");
+//        }
+//        // 设置jwt 不携带密码
+//        user1.setPassword(null);
+//        String s = jwtUtil.create(user1);
+//        return Result.succeed(s);
+//    }
 
     @PostMapping("/register")
     @Operation(summary = "用户注册")
@@ -201,4 +201,14 @@ public class UserController implements UserServepi {
         }
     }
 
+    // 返回用户列表
+    @GetMapping("/list")
+    @Operation(summary = "返回用户列表")
+    public Result<List<User>> list() {
+        List<User> list = userService.list(new QueryWrapper<User>().select("id", "name", "avatar_url"));
+        for (User user : list) {
+            user.setPassword(null);
+        }
+        return Result.succeed(list);
+    }
 }
