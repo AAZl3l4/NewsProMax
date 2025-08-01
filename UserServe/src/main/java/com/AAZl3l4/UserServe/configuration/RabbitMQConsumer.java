@@ -32,7 +32,8 @@ public class RabbitMQConsumer {
     // 监听延迟消息
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(name = "delay", durable = "true"),
-            exchange = @Exchange(name = "delay.direct", delayed = "true") // 关键：delayed="true"
+            exchange = @Exchange(name = "delay.direct", delayed = "true"), // 关键：delayed="true"
+            key = "delay"
     ))
     public void listenDelay(String msg) {
         log.info("收到延迟消息：{}", msg);

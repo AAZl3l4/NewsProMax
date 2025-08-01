@@ -1,4 +1,4 @@
-package com.AAZl3l3.NettyWSserve;
+package com.AAZl3l3.NettyWSServe;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -25,6 +25,9 @@ import org.springframework.context.annotation.Import;
         com.AAZl3l4.common.feignApi.UserServeApiFallbackFactory.class,
         // 添加异步线程池
         com.AAZl3l4.common.configuration.AsyncConfig.class,
+        // 添加redis配置
+        com.AAZl3l4.common.configuration.RedisConfig.class,
+
 })
 @EnableFeignClients(basePackages = "com.AAZl3l4.common.feignApi")
 public class NettyApplication {

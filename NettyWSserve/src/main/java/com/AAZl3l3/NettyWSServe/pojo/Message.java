@@ -1,8 +1,9 @@
-package com.AAZl3l3.NettyWSserve.pojo;
+package com.AAZl3l3.NettyWSServe.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data

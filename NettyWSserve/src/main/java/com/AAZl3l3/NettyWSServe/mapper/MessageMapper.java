@@ -1,6 +1,6 @@
-package com.AAZl3l3.NettyWSserve.mapper;
+package com.AAZl3l3.NettyWSServe.mapper;
 
-import com.AAZl3l3.NettyWSserve.pojo.Message;
+import com.AAZl3l3.NettyWSServe.pojo.Message;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

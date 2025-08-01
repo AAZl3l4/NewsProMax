@@ -13,12 +13,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 @RestController
@@ -35,16 +37,26 @@ public class UserController implements UserServepi {
     private FileServeApi fileServeApi;
     @Autowired
     private FaceService faceService;
+    @Value("${Jwt.expiration}")
+    private Long jwtExpiration;
 
-    @GetMapping("/login")
-    public Result login() {
+    @PostMapping("/login")
+    //TODO 模拟登录
+    public Result login(Integer userid) {
         //模拟用户 测试登录 返回token
         User user1 = new User();
-        user1.setId(2);
-        user1.setName("user");
-        user1.setRoles("user");
+        user1.setId(userid);
+        if (userid == 1) {
+            user1.setName("admin");
+            user1.setRoles("ADMIN");
+        }else{
+            user1.setName("user");
+            user1.setRoles("USER");
+        }
+
         user1.setPassword(null);
         String s = jwtUtil.create(user1);
+        redisTemplate.opsForValue().set("jwt:" + user1.getId(), s,jwtExpiration * 60000, TimeUnit.MILLISECONDS);
         return Result.succeed(s);
     }
 
@@ -58,16 +70,16 @@ public class UserController implements UserServepi {
 //        // 判断验证码和邮箱验证
 //        //注意 code 是通过 ？的参数传递的
 //        String iCode = (String) redisTemplate.opsForValue().get("imgCode:" + uuid);
-//        if (iCode == null ||!iCode.equals(imgCode)){
+//        if (iCode == null || !iCode.equals(imgCode)) {
 //            return Result.error("验证码错误或已过期");
 //        }
-//        String eCode = (String) redisTemplate.opsForValue().get("emailCode:"+user.getEmail());
-//        if (eCode == null || !eCode.equals(emailCode)){
+//        String eCode = (String) redisTemplate.opsForValue().get("emailCode:" + user.getEmail());
+//        if (eCode == null || !eCode.equals(emailCode)) {
 //            return Result.error("邮箱验证码错误或已过期");
 //        }
 //
 //        //判断人脸图片是否存在
-//        if (imgBase64 == null || imgBase64.isEmpty()){
+//        if (imgBase64 == null || imgBase64.isEmpty()) {
 //            return Result.error("请上传人脸图片");
 //        }
 //
@@ -87,6 +99,8 @@ public class UserController implements UserServepi {
 //        // 设置jwt 不携带密码
 //        user1.setPassword(null);
 //        String s = jwtUtil.create(user1);
+//        // 保存jwt到redis
+//        redisTemplate.opsForValue().set("jwt:" + user1.getId(), s,jwtExpiration * 60000, TimeUnit.MILLISECONDS);
 //        return Result.succeed(s);
 //    }
 
@@ -100,16 +114,16 @@ public class UserController implements UserServepi {
         // 判断验证码和邮箱验证
         //注意 code 是通过 ？的参数传递的
         String iCode = (String) redisTemplate.opsForValue().get("imgCode:" + uuid);
-        if (iCode == null ||!iCode.equals(imgCode)){
+        if (iCode == null || !iCode.equals(imgCode)) {
             return Result.error("验证码错误或已过期");
         }
-        String eCode = (String) redisTemplate.opsForValue().get("emailCode:"+user.getEmail());
-        if (eCode == null || !eCode.equals(emailCode)){
+        String eCode = (String) redisTemplate.opsForValue().get("emailCode:" + user.getEmail());
+        if (eCode == null || !eCode.equals(emailCode)) {
             return Result.error("邮箱验证码错误或已过期");
         }
 
         //判断人脸图片是否存在
-        if (imgBase64 == null || imgBase64.isEmpty()){
+        if (imgBase64 == null || imgBase64.isEmpty()) {
             return Result.error("请上传人脸图片");
         }
 
@@ -134,7 +148,7 @@ public class UserController implements UserServepi {
             return Result.error("注册失败");
         }
     }
-    
+
     @GetMapping("/info")
     @Operation(summary = "通过id查询用户信息")
     public User getUserById() {
@@ -144,7 +158,7 @@ public class UserController implements UserServepi {
         user.setPassword(null);
         return user;
     }
-    
+
     @PostMapping("/update")
     @Operation(summary = "更新用户信息")
     public Result updateUser(@RequestBody User user) {
@@ -196,7 +210,7 @@ public class UserController implements UserServepi {
         boolean b = faceService.updateFace(imgBase64, "public", String.valueOf(getid));
         if (b) {
             return Result.succeed("修改成功");
-        }else {
+        } else {
             return Result.error("修改失败");
         }
     }

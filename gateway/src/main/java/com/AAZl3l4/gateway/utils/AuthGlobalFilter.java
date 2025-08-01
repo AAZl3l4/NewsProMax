@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -20,6 +21,8 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -45,7 +48,16 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
         // 解析JWT
         try {
-            User user = jwtUtil.analysis(auth.substring(7));
+            String jwt = auth.substring(7);
+            User user = jwtUtil.analysis(jwt);
+            if (user == null) {
+                return unauthorized(exchange);
+            }
+            // 验证JWT是否被销毁
+            if (!jwt.equals(redisTemplate.opsForValue().get("jwt:"+user.getId()))){
+                return unauthorized(exchange);
+            }
+
             // 给下游信息添加请求头
             ServerWebExchange newEx = exchange
                     .mutate()
@@ -56,6 +68,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                     .build();
             return chain.filter(newEx);
         } catch (Exception e) {
+            e.printStackTrace();
             return unauthorized(exchange);
         }
     }

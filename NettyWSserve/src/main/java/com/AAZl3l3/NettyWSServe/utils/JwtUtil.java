@@ -1,4 +1,4 @@
-package com.AAZl3l3.NettyWSserve.utils;
+package com.AAZl3l3.NettyWSServe.utils;
 
 import com.AAZl3l4.common.pojo.User;
 import io.jsonwebtoken.Claims;

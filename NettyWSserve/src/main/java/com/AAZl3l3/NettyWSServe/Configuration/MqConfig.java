@@ -1,6 +1,5 @@
-package com.AAZl3l3.NettyWSserve.Configuration;
+package com.AAZl3l3.NettyWSServe.Configuration;
 
-import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;

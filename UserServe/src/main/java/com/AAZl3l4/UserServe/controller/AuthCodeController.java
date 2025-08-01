@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Tag(name = "验证码")
@@ -32,7 +33,7 @@ public class AuthCodeController {
         String code = captcha.text();
         // 验证码存入redis 并设置60s过期
         String uuid = UUID.randomUUID().toString();
-        redisTemplate.opsForValue().set("imgCode:"+uuid, code, 60);
+        redisTemplate.opsForValue().set("imgCode:"+uuid, code, 60, TimeUnit.SECONDS);
         // 返回图片base64
         HashMap<String, Object> map = new HashMap<>();
         map.put("uuid", uuid);

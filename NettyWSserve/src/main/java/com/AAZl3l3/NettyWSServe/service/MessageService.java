@@ -1,11 +1,10 @@
-package com.AAZl3l3.NettyWSserve.service;
+package com.AAZl3l3.NettyWSServe.service;
 
-import com.AAZl3l3.NettyWSserve.mapper.MessageMapper;
-import com.AAZl3l3.NettyWSserve.pojo.Message;
+import com.AAZl3l3.NettyWSServe.mapper.MessageMapper;
+import com.AAZl3l3.NettyWSServe.pojo.Message;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;

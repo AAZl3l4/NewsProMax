@@ -1,18 +1,19 @@
-package com.AAZl3l3.NettyWSserve.controller;
+package com.AAZl3l3.NettyWSServe.controller;
 
-import com.AAZl3l3.NettyWSserve.pojo.Message;
-import com.AAZl3l3.NettyWSserve.service.MessageService;
-import com.AAZl3l3.NettyWSserve.service.OnlineUserService;
-import com.AAZl3l4.common.pojo.User;
+import com.AAZl3l3.NettyWSServe.pojo.Message;
+import com.AAZl3l3.NettyWSServe.service.MessageService;
+import com.AAZl3l3.NettyWSServe.service.OnlineUserService;
 import com.AAZl3l4.common.utils.Result;
 import com.AAZl3l4.common.utils.UserTool;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/msg")
@@ -20,6 +21,7 @@ import java.util.List;
 public class PullController {
     private final MessageService messageService;
     private final OnlineUserService onlineUserService;
+    private final RedisTemplate redisTemplate;
 
     @GetMapping("/single")
     @Operation(summary = "获取私聊聊天记录")
@@ -36,17 +38,25 @@ public class PullController {
     @GetMapping("/group")
     @Operation(summary = "获取群聊聊天记录")
     /*
-    | gid | String | 是 | 群 id | gid=groupA |
     | last | Long | 否 | 上一次最后一条消息的 id（分页游标，首次传 null/0） |
     | size | int | 是 | 本次拉取条数 |
     */
-    public Result group(String gid, Long last, int size) {
-        return Result.succeed(messageService.pullGroup(gid, last, size));
+    public Result group(Long last, int size) {
+        //接入缓存
+        Object o = redisTemplate.opsForValue().get("group");
+        if (o != null) {
+            return Result.succeed((List<Message>)o);
+        }else {
+            List<Message> messages = messageService.pullGroup(String.valueOf(1), last, size);
+            redisTemplate.opsForValue().set("group",messages ,60, TimeUnit.SECONDS);
+            return Result.succeed(messages);
+        }
     }
 
     @GetMapping("/list")
     @Operation(summary = "获取在线用户列表")
     public Result list() {
+
         return Result.succeed(onlineUserService.getOnlineUsers());
     }
 }
