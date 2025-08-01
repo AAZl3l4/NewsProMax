@@ -24,7 +24,7 @@ public class UserServeApiFallbackFactory implements FallbackFactory<UserServepi>
             public Result<List<User>> list() {
                 log.error("调用 user-serve 服务失败，降级处理", cause);
                 rabbitTemplate.convertAndSend("error","调用 user-serve 服务失败，降级处理"+ cause);
-                return Result.error("服务降级：获取用户列表失败，请稍后重试");
+                throw new RuntimeException("服务降级：获取用户列表失败，请稍后重试", cause);
             }
         };
     }

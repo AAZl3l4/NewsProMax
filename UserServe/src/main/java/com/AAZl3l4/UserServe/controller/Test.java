@@ -2,7 +2,11 @@ package com.AAZl3l4.UserServe.controller;
 
 
 import com.AAZl3l4.UserServe.service.FaceService;
+import com.AAZl3l4.UserServe.service.impl.UserServiceImpl;
+import com.AAZl3l4.common.feignApi.FileServeApi;
 import com.AAZl3l4.common.pojo.AopLog;
+import com.AAZl3l4.common.pojo.User;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,23 +19,13 @@ import java.util.HashMap;
 public class Test {
 
     @Autowired
-    private FaceService faceService;
+    private FileServeApi fileServeApi;
     @Autowired
-    private RabbitTemplate rabbitTemplate;
+    private UserServiceImpl userService;
 
     @PostMapping("/test")
     @AopLog("测试方法")
-    public String test() throws IOException {
-        rabbitTemplate.convertAndSend(
-                "delay.direct",
-                "delay",
-                "你好",
-                m -> {
-                    m.getMessageProperties().setDelayLong(5000L); // 5 秒后投递
-                    return m;
-                }
-        );
+    public void test() throws IOException {
 
-        return "tset";
     }
 }

@@ -73,6 +73,12 @@
             <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
         </dependency>
 
+        <!--seata 注意还需要nacos的-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

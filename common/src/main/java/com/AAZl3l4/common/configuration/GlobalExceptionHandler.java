@@ -14,6 +14,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public Result handleRuntimeException(RuntimeException ex) {
         log.error("全局异常处理器触发了 原因:{}", ex.getMessage(), ex);
-        return Result.error(ex.getMessage());
+        // 抛出异常 让TM可以检测到
+        throw ex;
+//        return Result.error(ex.getMessage());
     }
 }

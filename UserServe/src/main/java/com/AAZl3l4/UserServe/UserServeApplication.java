@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Import;
         // 添加mvc配置
         com.AAZl3l4.common.configuration.WebMvcConfig.class,
         // 添加全局异常处理
-        com.AAZl3l4.common.configuration.GlobalExceptionHandler.class,
+//        com.AAZl3l4.common.configuration.GlobalExceptionHandler.class,
         // 添加redis配置
         com.AAZl3l4.common.configuration.RedisConfig.class,
         // 添加feign客户端配置

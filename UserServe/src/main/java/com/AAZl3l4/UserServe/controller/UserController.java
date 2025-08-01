@@ -10,6 +10,7 @@ import com.AAZl3l4.common.pojo.User;
 import com.AAZl3l4.common.utils.Result;
 import com.AAZl3l4.common.utils.UserTool;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import io.seata.spring.annotation.GlobalTransactional;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,6 +107,7 @@ public class UserController implements UserServepi {
 
     @PostMapping("/register")
     @Operation(summary = "用户注册")
+    @GlobalTransactional(rollbackFor = Exception.class)
     public Result register(@RequestBody User user,
                            @RequestParam("imgCode") String imgCode,
                            @RequestParam("emailCode") String emailCode,
@@ -186,6 +188,7 @@ public class UserController implements UserServepi {
 
     @PostMapping("/updateAvatar")
     @Operation(summary = "修改头像")
+    @GlobalTransactional(rollbackFor = Exception.class)
     public Result updateAvatar(@RequestPart("file") MultipartFile file) {
         String avatarUrl = fileServeApi.uploadFile(file);
         if (avatarUrl == null) {

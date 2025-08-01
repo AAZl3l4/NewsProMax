@@ -20,7 +20,7 @@ public class FileServeApiFallbackFactory implements FallbackFactory<FileServeApi
             public String uploadFile(MultipartFile file) {
                 log.error("调用 file-serve 服务失败，降级处理", cause);
                 rabbitTemplate.convertAndSend("error","调用 file-serve 服务失败，降级处理"+ cause);
-                return "服务降级：文件上传失败，请稍后重试";
+                throw new RuntimeException("服务降级：文件上传失败，请稍后重试", cause);
             }
         };
     }

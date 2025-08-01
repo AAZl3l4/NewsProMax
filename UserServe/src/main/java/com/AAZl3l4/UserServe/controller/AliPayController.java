@@ -8,6 +8,7 @@ import com.AAZl3l4.common.utils.UserTool;
 import com.alipay.easysdk.factory.Factory;
 import com.alipay.easysdk.kernel.Config;
 import com.alipay.easysdk.payment.page.models.AlipayTradePagePayResponse;
+import io.seata.spring.annotation.GlobalTransactional;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
@@ -77,7 +78,8 @@ public class AliPayController {
     // 异步通知处理
     @PostMapping("/callback")
     @Operation(summary = "异步通知处理")
-    @AopLog("支付宝支付已经完成 s异步通知处理")
+    @AopLog("支付宝支付已经完成 异步通知处理")
+    @GlobalTransactional(rollbackFor = Exception.class)
     public String handleCallback(HttpServletRequest request) {
         System.out.println("异步通知处理");
         Map<String, String> params = new HashMap<>();
@@ -110,6 +112,7 @@ public class AliPayController {
     @PostMapping("/refund")
     @Operation(summary = "退款接口")
     @AopLog("支付宝支付退款")
+    @GlobalTransactional(rollbackFor = Exception.class)
     public String refund(@RequestParam String orderId, @RequestParam Double refundAmount) {
         try {
             // 调用支付宝的退款接口

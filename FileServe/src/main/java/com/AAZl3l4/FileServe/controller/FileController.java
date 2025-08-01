@@ -47,6 +47,5 @@ public class FileController {
         return minioUtil.uploadFile(randomFilename, file);
     }
 
-
 }
 
