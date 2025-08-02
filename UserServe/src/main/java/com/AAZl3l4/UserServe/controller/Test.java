@@ -25,7 +25,18 @@ public class Test {
 
     @PostMapping("/test")
     @AopLog("测试方法")
+    @GlobalTransactional(rollbackFor = Exception.class)
     public void test() throws IOException {
-
+        //插入用户
+//        User user = new User();
+//        user.setName("张三");
+//        user.setAvatarUrl("TEST");
+//        user.setPassword("123456");
+//        user.setEmail("12341156@qq.com");
+//        user.setAge(18);
+//        user.setSex('男');
+//        user.setRoles("user");
+//        boolean save = userService.save(user);
+//        System.out.println(user.getId());
     }
 }

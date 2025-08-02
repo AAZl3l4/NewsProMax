@@ -46,6 +46,5 @@ public class FileController {
         String randomFilename = UUID.randomUUID().toString().replace("-", "") + "--" + fileName + fileExtension;
         return minioUtil.uploadFile(randomFilename, file);
     }
-
 }
 

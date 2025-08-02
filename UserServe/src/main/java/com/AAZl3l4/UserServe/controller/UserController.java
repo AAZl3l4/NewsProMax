@@ -1,8 +1,10 @@
 package com.AAZl3l4.UserServe.controller;
 
 
+import com.AAZl3l4.UserServe.pojo.RoleReview;
 import com.AAZl3l4.UserServe.service.FaceService;
-import com.AAZl3l4.UserServe.service.impl.UserServiceImpl;
+import com.AAZl3l4.UserServe.service.IRoleReviewService;
+import com.AAZl3l4.UserServe.service.IUserService;
 import com.AAZl3l4.UserServe.utils.JwtUtil;
 import com.AAZl3l4.common.feignApi.FileServeApi;
 import com.AAZl3l4.common.feignApi.UserServepi;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class UserController implements UserServepi {
 
     @Autowired
-    private UserServiceImpl userService;
+    private IUserService userService;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
@@ -40,6 +43,8 @@ public class UserController implements UserServepi {
     private FaceService faceService;
     @Value("${Jwt.expiration}")
     private Long jwtExpiration;
+    @Autowired
+    private IRoleReviewService roleReviewService;
 
     @PostMapping("/login")
     //TODO 模拟登录
@@ -142,9 +147,13 @@ public class UserController implements UserServepi {
 
         // 设置默认头像
         user.setAvatarUrl("http://192.168.188.188:9000/public/default.png");
+        user.setCreateTime(LocalDateTime.now());
 
         if (userService.save(user)) {
             boolean b = faceService.registerFace(imgBase64, "public", String.valueOf(user.getId()));
+            if (!b) {
+                return Result.error("人脸注册失败");
+            }
             return Result.succeed("注册成功");
         } else {
             return Result.error("注册失败");
@@ -158,6 +167,9 @@ public class UserController implements UserServepi {
         User user = userService.getById(id);
         // 不返回密码
         user.setPassword(null);
+        user.setEmail(null);
+        user.setMoney(null);
+        user.setWxId(null);
         return user;
     }
 
@@ -225,7 +237,27 @@ public class UserController implements UserServepi {
         List<User> list = userService.list(new QueryWrapper<User>().select("id", "name", "avatar_url"));
         for (User user : list) {
             user.setPassword(null);
+            user.setEmail(null);
+            user.setMoney(null);
+            user.setWxId(null);
         }
         return Result.succeed(list);
+    }
+
+    // 申请修改角色
+    @PostMapping("/uprole")
+    @Operation(summary = "申请修改角色")
+    public Result upRole(String role) {
+        Integer id = UserTool.getid();
+        boolean save = roleReviewService.save(new RoleReview()
+                .setUserid(id)
+                .setRole(role)
+                .setCreateTime(LocalDateTime.now())
+        );
+        if (save) {
+            return Result.succeed("申请成功");
+        } else {
+            return Result.error("申请失败");
+        }
     }
 }

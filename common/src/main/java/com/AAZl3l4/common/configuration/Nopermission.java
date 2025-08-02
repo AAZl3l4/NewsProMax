@@ -19,7 +19,7 @@ public class Nopermission implements AccessDeniedHandler,AuthenticationEntryPoin
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"code\":401,\"msg\":\"未登录/未知路径\"}");
+        response.getWriter().write("{\"code\":401,\"msg\":\"未登录/未知路径/未知错误\"}");
 
     }
 

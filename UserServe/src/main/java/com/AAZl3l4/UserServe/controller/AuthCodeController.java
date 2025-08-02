@@ -48,15 +48,11 @@ public class AuthCodeController {
         if (redisTemplate.opsForValue().get("emailCode"+email) != null) {
             return Result.error("请勿频繁获取验证码");
         }
-        // 限制ip限流 防止被攻击
-        if (redisTemplate.opsForValue().get("ip") != null) {
-            return Result.error("请勿频繁获取验证码");
-        }
         // 生成6位验证码
         String code = String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
 
         // 发送验证码邮件
-        mailService.sendText("email", "验证码", code);
+        mailService.sendText(email, "验证码", code);
         // 验证码存入redis 并设置60s过期
         redisTemplate.opsForValue().set("emailCode:"+email, code, 60);
 
