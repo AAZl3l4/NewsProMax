@@ -26,6 +26,27 @@ public class UserServeApiFallbackFactory implements FallbackFactory<UserServepi>
                 rabbitTemplate.convertAndSend("error","调用 user-serve 服务失败，降级处理"+ cause);
                 throw new RuntimeException("服务降级：获取用户列表失败，请稍后重试", cause);
             }
+
+            @Override
+            public Result updateUser(User user) {
+                log.error("调用 user-serve 服务失败，降级处理", cause);
+                rabbitTemplate.convertAndSend("error","调用 user-serve 服务失败，降级处理"+ cause);
+                throw new RuntimeException("服务降级：修改用户，请稍后重试", cause);
+            }
+
+            @Override
+            public Result getDefault(Integer userId) {
+                log.error("调用 user-serve 服务失败，降级处理", cause);
+                rabbitTemplate.convertAndSend("error","调用 user-serve 服务失败，降级处理"+ cause);
+                throw new RuntimeException("服务降级：获取用户地址，请稍后重试", cause);
+            }
+
+            @Override
+            public User getUserById(Integer getid) {
+                log.error("调用 user-serve 服务失败，降级处理", cause);
+                rabbitTemplate.convertAndSend("error","调用 user-serve 服务失败，降级处理"+ cause);
+                throw new RuntimeException("服务降级：获取用户信息，请稍后重试", cause);
+            }
         };
     }
 }

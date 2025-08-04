@@ -1,4 +1,4 @@
-package com.AAZl3l4.UserServe;
+package com.AAZl3l4.MallService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,10 +31,10 @@ import org.springframework.context.annotation.Import;
         com.AAZl3l4.common.configuration.AsyncConfig.class,
 })
 @EnableFeignClients(basePackages = "com.AAZl3l4.common.feignApi")
-public class UserServeApplication {
+public class MallServeApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(UserServeApplication.class, args);
+        SpringApplication.run(MallServeApplication.class, args);
     }
 
 }

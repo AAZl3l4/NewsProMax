@@ -19,6 +19,7 @@
         <module>UserServe</module>
         <module>gateway</module>
         <module>FileServe</module>
+        <module>Mallserve</module>
     </modules>
 
     <properties>

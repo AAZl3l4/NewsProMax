@@ -60,7 +60,7 @@ public class User implements Serializable {
     @NotEmpty
     private char sex;
 
-    @Schema(description = "角色")
+    @Schema(description = "角色 ADMIN 管理员 USER用户 MERCHANT商家 UP UP主")
     @NotEmpty
     private String roles;
 

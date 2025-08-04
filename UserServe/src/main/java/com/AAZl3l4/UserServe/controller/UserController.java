@@ -1,8 +1,10 @@
 package com.AAZl3l4.UserServe.controller;
 
 
+import com.AAZl3l4.UserServe.pojo.Address;
 import com.AAZl3l4.UserServe.pojo.RoleReview;
 import com.AAZl3l4.UserServe.service.FaceService;
+import com.AAZl3l4.UserServe.service.IAddressService;
 import com.AAZl3l4.UserServe.service.IRoleReviewService;
 import com.AAZl3l4.UserServe.service.IUserService;
 import com.AAZl3l4.UserServe.utils.JwtUtil;
@@ -45,6 +47,8 @@ public class UserController implements UserServepi {
     private Long jwtExpiration;
     @Autowired
     private IRoleReviewService roleReviewService;
+    @Autowired
+    private IAddressService addressService;
 
     @PostMapping("/login")
     //TODO 模拟登录
@@ -162,13 +166,11 @@ public class UserController implements UserServepi {
 
     @GetMapping("/info")
     @Operation(summary = "通过id查询用户信息")
-    public User getUserById() {
-        Integer id = UserTool.getid();
+    public User getUserById(Integer id) {
         User user = userService.getById(id);
         // 不返回密码
         user.setPassword(null);
         user.setEmail(null);
-        user.setMoney(null);
         user.setWxId(null);
         return user;
     }
@@ -259,5 +261,12 @@ public class UserController implements UserServepi {
         } else {
             return Result.error("申请失败");
         }
+    }
+
+    @PostMapping("/getDefault")
+    @Operation(summary = "查询默认地址")
+    public Result getDefault(Integer userId) {
+        Address byId = addressService.getById(new QueryWrapper<Address>().eq("userId", userId).eq("isDefault", '1'));
+        return Result.succeed(byId);
     }
 }
