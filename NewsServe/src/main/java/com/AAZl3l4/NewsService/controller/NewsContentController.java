@@ -1,9 +1,9 @@
-package com.AAZl3l4.MallService.controller;
+package com.AAZl3l4.NewsService.controller;
 
 
-import com.AAZl3l4.MallService.pojo.Comment;
-import com.AAZl3l4.MallService.pojo.CommentDTO;
-import com.AAZl3l4.MallService.service.ICommentService;
+import com.AAZl3l4.NewsService.pojo.NewsContent;
+import com.AAZl3l4.NewsService.pojo.NewsContentDTO;
+import com.AAZl3l4.NewsService.service.INewsContentService;
 import com.AAZl3l4.common.feignApi.UserServeApi;
 import com.AAZl3l4.common.pojo.User;
 import com.AAZl3l4.common.utils.Result;
@@ -20,30 +20,30 @@ import java.util.Objects;
 
 
 @RestController
-@RequestMapping("/comment")
-public class CommentController {
+@RequestMapping("/content")
+public class NewsContentController {
 
     @Autowired
-    private ICommentService commentService;
+    private INewsContentService commentService;
     @Autowired
     private UserServeApi userServeApi;
 
     @GetMapping("/list/{id}")
-    @Operation(summary = "分页查询当前商品的所有评论")
+    @Operation(summary = "分页查询当前文章的所有评论")
     public Result list(@PathVariable Integer id,
                        @RequestParam(defaultValue = "0") Integer page,
                        @RequestParam(defaultValue = "10") Integer size) {
-        QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("product_id", id);
-        Page<Comment> page1 = commentService.page(new Page<>(page, size), queryWrapper);
-        //将Comment转换为CommentDTO 携带用户信息
-        Page<CommentDTO> page2 = new Page<>();
+        QueryWrapper<NewsContent> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("news_id", id);
+        Page<NewsContent> page1 = commentService.page(new Page<>(page, size), queryWrapper);
+        //将NewsContent转换为NewsContentDTO 携带用户信息
+        Page<NewsContentDTO> page2 = new Page<>();
         BeanUtils.copyProperties(page1,page2);
-        //遍历设置CommentDTO(浅拷贝只拷贝的page的信息 没有records)
+        //遍历设置NewsContentDTO(浅拷贝只拷贝的page的信息 没有records)
         page2.setRecords(page1.getRecords().stream().map(comment -> {
-            CommentDTO commentDTO = new CommentDTO();
+            NewsContentDTO commentDTO = new NewsContentDTO();
             BeanUtils.copyProperties(comment, commentDTO);
-            Integer userid = comment.getUserid();
+            Integer userid = comment.getUserId();
             User userById = userServeApi.getUserById(userid);
             commentDTO.setUsername(userById.getName());
             commentDTO.setAvatar(userById.getAvatarUrl());
@@ -54,16 +54,16 @@ public class CommentController {
 
     @PostMapping("/add")
     @Operation(summary = "添加评论")
-    public Result add(@RequestBody Comment comment) {
-        comment.setUserid(UserTool.getid());
+    public Result add(@RequestBody NewsContent comment) {
+        comment.setUserId(UserTool.getid());
         return commentService.save(comment) ? Result.succeed("添加成功") : Result.error("添加失败");
     }
 
     @PostMapping("/delete/{id}")
     @Operation(summary = "删除评论")
     public Result delete(@PathVariable Integer id) {
-        Comment comment = commentService.getById(id);
-        if (!Objects.equals(comment.getUserid(), UserTool.getid())){
+        NewsContent comment = commentService.getById(id);
+        if (!Objects.equals(comment.getNewsId(), UserTool.getid())){
             return Result.error("没有权限");
         }
         return commentService.removeById(id) ? Result.succeed("删除成功") : Result.error("删除失败");
@@ -75,5 +75,6 @@ public class CommentController {
     public Result addelete(@PathVariable Integer id) {
         return commentService.removeById(id) ? Result.succeed("删除成功") : Result.error("删除失败");
     }
+
 
 }

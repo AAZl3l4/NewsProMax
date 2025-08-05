@@ -1,7 +1,6 @@
-package com.AAZl3l4.MallService.service.impl;
+package com.AAZl3l4.MallService.service;
 
 import com.AAZl3l4.MallService.pojo.Product;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Highlight;
 import org.springframework.data.elasticsearch.annotations.HighlightField;

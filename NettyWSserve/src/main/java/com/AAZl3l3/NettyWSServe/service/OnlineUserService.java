@@ -1,6 +1,6 @@
 package com.AAZl3l3.NettyWSServe.service;
 
-import com.AAZl3l4.common.feignApi.UserServepi;
+import com.AAZl3l4.common.feignApi.UserServeApi;
 import com.AAZl3l4.common.pojo.User;
 import io.netty.channel.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Service
 public class OnlineUserService {
     @Autowired
-    private UserServepi userServepi;
+    private UserServeApi userServepi;
     @Autowired
     private RedisTemplate redisTemplate;
 

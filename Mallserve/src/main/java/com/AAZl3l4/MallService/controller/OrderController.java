@@ -6,7 +6,7 @@ import com.AAZl3l4.MallService.service.IOrderItemService;
 import com.AAZl3l4.MallService.service.IOrderService;
 import com.AAZl3l4.MallService.service.ProductService;
 import com.AAZl3l4.MallService.utils.ExcelUtils;
-import com.AAZl3l4.common.feignApi.UserServepi;
+import com.AAZl3l4.common.feignApi.UserServeApi;
 import com.AAZl3l4.common.pojo.User;
 import com.AAZl3l4.common.utils.Result;
 import com.AAZl3l4.common.utils.UserTool;
@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class OrderController {
     @Autowired
     private ProductService productService;
     @Autowired
-    private UserServepi userService;
+    private UserServeApi userService;
 
     @PostMapping("/create")
     @Operation(summary = "添加订单")
@@ -93,7 +94,7 @@ public class OrderController {
         if (order.getUserId() == UserTool.getid() && order.getStatus() == ('0')) {
             order.setStatus('4');
             orderService.updateById(order);
-            orderItemService.remove(new QueryWrapper<OrderItem>().eq("orderId", orderId));
+            orderItemService.remove(new QueryWrapper<OrderItem>().eq("order_id", orderId));
             return Result.succeed("取消成功");
         } else {
             return Result.error("取消失败");
@@ -126,7 +127,7 @@ public class OrderController {
     @GetMapping("/list")
     @Operation(summary = "查询本人订单")
     public Result<List<Order>> list() {
-        return Result.succeed(orderService.list(new QueryWrapper<Order>().eq("userId", UserTool.getid())));
+        return Result.succeed(orderService.list(new QueryWrapper<Order>().eq("user_id", UserTool.getid())));
     }
 
     @GetMapping("/info")
@@ -141,13 +142,13 @@ public class OrderController {
 
     @GetMapping("/report")
     @Operation(summary = "导出报表")
-//    @PreAuthorize("hasAnyRole('MERCHANT')")
+    @PreAuthorize("hasAnyRole('MERCHANT')")
     public void report(Integer productId,HttpServletResponse response) throws IOException {
         Product byId = productService.findById(Long.valueOf(productId));
-//        if (byId.getMerchantId() != UserTool.getid()) {
-//            return;
-//        }
-        List<OrderItem> product = orderItemService.list(new QueryWrapper<OrderItem>().eq("productId", productId));
+        if (byId.getMerchantId() != UserTool.getid()) {
+            return;
+        }
+        List<OrderItem> product = orderItemService.list(new QueryWrapper<OrderItem>().eq("product_id", productId));
         ExcelUtils.exportOrderItem(product,response);
     }
 

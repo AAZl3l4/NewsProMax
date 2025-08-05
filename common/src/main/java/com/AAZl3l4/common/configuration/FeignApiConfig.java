@@ -19,6 +19,8 @@ public class FeignApiConfig {
                 if (attributes != null) {
                     HttpServletRequest request = attributes.getRequest();
                     request.getHeaderNames().asIterator().forEachRemaining(name -> {
+                        System.out.println(name);
+                        System.out.println(request.getHeader(name));
                                 if (!"content-length".equalsIgnoreCase(name)) {
                                     template.header(name, request.getHeader(name));
                                 }

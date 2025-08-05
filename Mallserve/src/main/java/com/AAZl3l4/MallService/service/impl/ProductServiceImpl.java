@@ -1,6 +1,7 @@
 package com.AAZl3l4.MallService.service.impl;
 
 import com.AAZl3l4.MallService.pojo.Product;
+import com.AAZl3l4.MallService.service.ProductRepository;
 import com.AAZl3l4.MallService.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

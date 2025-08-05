@@ -9,7 +9,7 @@ import com.AAZl3l4.UserServe.service.IRoleReviewService;
 import com.AAZl3l4.UserServe.service.IUserService;
 import com.AAZl3l4.UserServe.utils.JwtUtil;
 import com.AAZl3l4.common.feignApi.FileServeApi;
-import com.AAZl3l4.common.feignApi.UserServepi;
+import com.AAZl3l4.common.feignApi.UserServeApi;
 import com.AAZl3l4.common.pojo.User;
 import com.AAZl3l4.common.utils.Result;
 import com.AAZl3l4.common.utils.UserTool;
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @Tag(name = "用户服务")
-public class UserController implements UserServepi {
+public class UserController implements UserServeApi {
 
     @Autowired
     private IUserService userService;
@@ -263,7 +263,7 @@ public class UserController implements UserServepi {
         }
     }
 
-    @PostMapping("/getDefault")
+    @GetMapping("/getDefault")
     @Operation(summary = "查询默认地址")
     public Result getDefault(Integer userId) {
         Address byId = addressService.getById(new QueryWrapper<Address>().eq("userId", userId).eq("isDefault", '1'));

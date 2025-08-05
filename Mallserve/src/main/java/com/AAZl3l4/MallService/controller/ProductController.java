@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ import java.util.UUID;
 public class ProductController {
 
     private final ProductService service;
+    private final RedisTemplate redisTemplate;
 
     @PostMapping("/add")
     @Operation(summary = "新增")
@@ -53,6 +55,7 @@ public class ProductController {
             return Result.error("没有权限");
         }
         try {
+            redisTemplate.delete("product:" + id);
             service.deleteById(id);
         }catch (Exception e) {
             return Result.error("删除失败");
@@ -67,6 +70,7 @@ public class ProductController {
         if (!Objects.equals(p.getMerchantId(), UserTool.getid())){
             return Result.error("没有权限");
         }
+        redisTemplate.delete("product:" + p.getProductId());
         Product save = service.save(p);
         if (save == null) {
             return Result.error("保存失败");
@@ -78,11 +82,17 @@ public class ProductController {
     @GetMapping("/{id}")
     @Operation(summary = "根据主键查询")
     public Result find(@PathVariable Long id) {
-        return Result.succeed(service.findById(id));
+        if (redisTemplate.opsForValue().get("product:" + id) != null){
+            return Result.succeed(redisTemplate.opsForValue().get("product:" + id));
+        }else{
+            Product byId = service.findById(id);
+            redisTemplate.opsForValue().set("product:" + id, byId);
+            return Result.succeed(byId);
+        }
     }
 
     @GetMapping("/search")
-    @Operation(summary = "分页的高亮/分类/价格区间查询 支持条件拼接")
+    @Operation(summary = "分页/高亮/分类/价格区间查询 支持条件拼接 包括查看全部商品")
     public Result highlightPage(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Float min,

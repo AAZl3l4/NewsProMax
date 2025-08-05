@@ -7,24 +7,25 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 // 用户服务接口
 @FeignClient(value = "user-serve", fallbackFactory = UserServeApiFallbackFactory.class)
-public interface UserServepi {
+public interface UserServeApi {
 
     @GetMapping("/list")
     @Operation(summary = "返回用户列表的feign客户端")
     public Result<List<User>> list();
 
-    @PostMapping("/getDefault")
+    @GetMapping("/getDefault")
     @Operation(summary = "查询默认地址")
-    public Result getDefault(Integer userId);
+    public Result getDefault(@RequestParam("userId") Integer userId);
 
     @GetMapping("/info")
     @Operation(summary = "通过id查询用户信息")
-    public User getUserById(Integer getid);
+    public User getUserById(@RequestParam("id") Integer id);
 
     @PostMapping("/update")
     @Operation(summary = "更新用户信息")

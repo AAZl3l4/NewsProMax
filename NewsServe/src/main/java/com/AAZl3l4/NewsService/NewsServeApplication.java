@@ -1,4 +1,4 @@
-package com.AAZl3l4.MallService;
+package com.AAZl3l4.NewsService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -33,10 +33,10 @@ import org.springframework.context.annotation.Import;
         com.AAZl3l4.common.configuration.AsyncConfig.class,
 })
 @EnableFeignClients(basePackages = "com.AAZl3l4.common.feignApi")
-public class MallServeApplication {
+public class NewsServeApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MallServeApplication.class, args);
+        SpringApplication.run(NewsServeApplication.class, args);
     }
 
 }
