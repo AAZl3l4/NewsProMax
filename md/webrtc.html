@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>WebRTC Demo（输入 to）</title>
+<style>
+body{margin:0;padding:20px;background:#111;color:#eee;font-family:Arial}
+video{width:45vw;border-radius:8px;background:#000}
+button{margin:4px;padding:8px 14px}
+#targetBox{display:none}
+</style>
+</head>
+<body>
+
+<h2>WebRTC 音视频通话（动态输入 to）</h2>
+<video id="localVideo" autoplay muted></video>
+<video id="remoteVideo" autoplay></video>
+
+<div>
+  <button id="btnStart">开启摄像头</button>
+  <button id="btnCall" disabled>呼叫</button>
+  <button id="btnHangup" disabled>挂断</button>
+</div>
+
+<!-- 输入对方 userId -->
+<div id="targetBox">
+  <input id="targetId" placeholder="对方 userId" />
+  <button onclick="doCall()">确认呼叫</button>
+</div>
+
+<script>
+/* ========= 基础配置 ========= */
+const STUN = [
+  'stun:stun.miwifi.com',
+  'stun:stun.chat.bilibili.com',
+  'stun:stun.douyu.com',
+  'stun:stun.qq.com'
+];
+
+/* ========= 全局变量 ========= */
+const localVideo  = document.getElementById('localVideo');
+const remoteVideo = document.getElementById('remoteVideo');
+const btnStart    = document.getElementById('btnStart');
+const btnCall     = document.getElementById('btnCall');
+const btnHangup   = document.getElementById('btnHangup');
+const targetBox   = document.getElementById('targetBox');
+const targetIdEl  = document.getElementById('targetId');
+
+let myId, targetId, localStream, pc, ws;
+
+/* ========= 1. 登录 ========= */
+(function init() {
+  myId = prompt('请输入你的 userId（token）');
+  if (!myId) location.reload();
+  ws = new WebSocket(`ws://127.0.0.1:9000/ws?token=${myId}`);
+  ws.onopen    = () => console.log('[WS] connected');
+  ws.onclose   = () => console.warn('[WS] closed');
+  ws.onmessage = async ({ data }) => {
+    const msg = JSON.parse(data);
+    switch (msg.type) {
+      case 10: await handleOffer(msg.body, msg.from);  break;
+      case 11: await handleAnswer(msg.body);           break;
+      case 12: await handleIce(msg.body);              break;
+    }
+  };
+})();
+
+/* ========= 2. 摄像头 ========= */
+btnStart.onclick = async () => {
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    localVideo.srcObject = localStream;
+    btnStart.disabled = true;
+    btnCall.disabled  = false;
+  } catch (e) {
+    alert('摄像头失败: ' + e);
+  }
+};
+
+/* ========= 3. PeerConnection ========= */
+function createPC() {
+  pc = new RTCPeerConnection({ iceServers: STUN.map(u => ({ urls: u })) });
+  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+  pc.ontrack = e => remoteVideo.srcObject = e.streams[0];
+  pc.onicecandidate = e => {
+    if (e.candidate) {
+      ws.send(JSON.stringify({ type: 12, to: targetId, body: JSON.stringify(e.candidate) }));
+    }
+  };
+}
+
+/* ========= 4. 呼叫流程 ========= */
+btnCall.onclick = () => {
+  targetBox.style.display = 'block';
+};
+
+function doCall() {
+  targetId = targetIdEl.value.trim();
+  if (!targetId) return alert('请输入对方 userId');
+  targetBox.style.display = 'none';
+  createPC();
+  pc.createOffer().then(offer => {
+    pc.setLocalDescription(offer);
+    ws.send(JSON.stringify({ type: 10, to: targetId, body: JSON.stringify(offer) }));
+    btnCall.disabled  = true;
+    btnHangup.disabled = false;
+  });
+}
+
+/* ========= 5. 应答 / ICE ========= */
+async function handleOffer(sdp, from) {
+  targetId = from;
+  createPC();
+  await pc.setRemoteDescription(JSON.parse(sdp));
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  ws.send(JSON.stringify({ type: 11, to: targetId, body: JSON.stringify(answer) }));
+  btnHangup.disabled = false;
+}
+
+async function handleAnswer(sdp) {
+  await pc.setRemoteDescription(JSON.parse(sdp));
+}
+
+async function handleIce(candidate) {
+  await pc.addIceCandidate(JSON.parse(candidate));
+}
+
+/* ========= 6. 挂断 ========= */
+btnHangup.onclick = () => {
+  pc && pc.close();
+  pc = null;
+  remoteVideo.srcObject = null;
+  btnCall.disabled  = false;
+  btnHangup.disabled = true;
+};
+</script>
+
+</body>
+</html>

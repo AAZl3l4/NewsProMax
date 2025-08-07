@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="cn">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>原生H5页面获取手机坐标</title>
+		<meta name="viewport" content="initial-scale=1.0,
+ maximum-scale=1.0, user-scalable=no"	/>
+	</head>
+	<body>
+		<p  id="msg"></p>
+		<div id="Text">位置：</div>
+	</body>
+ 
+	<script type="text/javascript">
+				var str="不支持定位功能";
+				
+				if (navigator.geolocation){
+					str="支持定位功能，如果没有获取到坐标可能没有使用https加密链接。";
+					console.log(str);
+					document.getElementById("msg").innerHTML = str;
+					 
+					navigator.geolocation.getCurrentPosition( function (position) {
+							str+="<p>获取定位</p>";
+							console.log(str);
+							document.getElementById("msg").innerHTML = str;
+							
+							latitude = position.coords.latitude;//获取纬度
+							longitude = position.coords.longitude;//获取经度
+							
+							str="位置："+longitude+","+latitude
+							document.getElementById("Text").innerHTML = str;
+					});
+				}else{
+					console.log(str);
+					document.getElementById("Text").innerHTML = str;
+					alert(str);
+				}
+		</script>
+</html>

@@ -7,10 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -33,7 +30,7 @@ public class AuthCodeController {
         String code = captcha.text();
         // 验证码存入redis 并设置60s过期
         String uuid = UUID.randomUUID().toString();
-        redisTemplate.opsForValue().set("imgCode:"+uuid, code, 60, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set("imgCode:"+uuid, code, 120, TimeUnit.SECONDS);
         // 返回图片base64
         HashMap<String, Object> map = new HashMap<>();
         map.put("uuid", uuid);
@@ -43,7 +40,7 @@ public class AuthCodeController {
 
     @Operation(summary = "获取邮箱验证码")
     @PostMapping("/getemail")
-    public Result<String> getEmailAuthCode(String email) {
+    public Result<String> getEmailAuthCode(@RequestBody String email) {
         // 限流
         if (redisTemplate.opsForValue().get("emailCode"+email) != null) {
             return Result.error("请勿频繁获取验证码");
@@ -52,9 +49,10 @@ public class AuthCodeController {
         String code = String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
 
         // 发送验证码邮件
-        mailService.sendText(email, "验证码", code);
+//        mailService.sendText(email, "验证码", code);
         // 验证码存入redis 并设置60s过期
-        redisTemplate.opsForValue().set("emailCode:"+email, code, 60);
+        redisTemplate.opsForValue().set("emailCode:"+email, code, 120, TimeUnit.SECONDS);
+        System.out.println(code);
 
         return Result.succeed("发送成功");
     }

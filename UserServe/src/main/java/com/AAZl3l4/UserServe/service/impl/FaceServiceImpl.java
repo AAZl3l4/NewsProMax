@@ -72,21 +72,19 @@ public class FaceServiceImpl implements FaceService {
     public boolean compareWithUser(String base64, String groupId, String userId) {
         // 前端传过来的 image是 data:image/xxx;base64,xxx 形式 先去掉头部
         String substring = base64.substring(base64.indexOf(",") + 1);
-
         HashMap<String, Object> options = new HashMap<>();
         options.put("user_id", userId);
         options.put("quality_control", "NORMAL");
         options.put("liveness_control", "LOW");
-
         JSONObject res = aipFace.search(substring, "BASE64", groupId, options);
         int errCode = res.getInt("error_code");
         if (errCode != 0) {
             return false;                      // 未找到或异常
         }
+
         JSONArray list = res.getJSONObject("result")
                 .getJSONArray("user_list");
         if (list.length() == 0) {
-            System.out.println(list);
             return false;
         }
 

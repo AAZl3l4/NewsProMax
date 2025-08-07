@@ -61,12 +61,10 @@ public class User implements Serializable {
     private char sex;
 
     @Schema(description = "角色 ADMIN 管理员 USER用户 MERCHANT商家 UP UP主")
-    @NotEmpty
     private String roles;
 
     @Schema(description = "是否封禁 0:正常 1:禁止")
-    @NotEmpty
-    private char isban;
+    private char isban='0';
 
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
