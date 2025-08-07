@@ -212,7 +212,7 @@ public class UserController implements UserServeApi {
 
     @PostMapping("/updateFace")
     @Operation(summary = "更新用户人脸信息")
-    public Result updateFace(@RequestBody String imgBase64) throws IOException {
+    public Result updateFace(String imgBase64) throws IOException {
         Integer getid = UserTool.getid();
         boolean b = faceService.updateFace(imgBase64, "public", String.valueOf(getid));
         if (b) {
