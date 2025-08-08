@@ -84,7 +84,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSo
     // 连接建立(此时还获取不到消息)
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
-//        System.out.println("客户端连接: " + ctx.channel().id());
+//      System.out.println("客户端连接: " + ctx.channel().id());
     }
 
     // 断开连接
