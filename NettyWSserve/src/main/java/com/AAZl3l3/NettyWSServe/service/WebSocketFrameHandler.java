@@ -84,7 +84,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSo
     // 连接建立(此时还获取不到消息)
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
-        System.out.println("客户端连接: " + ctx.channel().id());
+//        System.out.println("客户端连接: " + ctx.channel().id());
     }
 
     // 断开连接
@@ -107,28 +107,22 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSo
     // 心跳检测
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        System.out.println("用户事件触发");
         // 如果是空闲
         if (evt instanceof IdleStateEvent) {
-            System.out.println("空闲检测");
             IdleStateEvent e = (IdleStateEvent) evt;
             if (e.state() == IdleState.READER_IDLE) {
-                System.out.println(String.format("空闲检测 -> {%s}",ctx.channel()));
                 Boolean alreadySent = ctx.channel().attr(WsHandshakeInterceptor.PING_SENT).get();
                 if (Boolean.TRUE.equals(alreadySent)) {
-                    System.out.println("已发送Ping");
                     // 上一次 Ping 没收到任何数据 -> 掉线
                     OnlineUserService.remove(ctx.channel().attr(WsHandshakeInterceptor.USERS).get());
                     ctx.close();
                 } else {
-                    System.out.println("第一次空闲");
                     // 第一次空闲，发 Ping 并做标记
                     ctx.writeAndFlush(new PingWebSocketFrame());
                     ctx.channel().attr(WsHandshakeInterceptor.PING_SENT).set(true);
                 }
             }
         } else if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
-            System.out.println("握手成功");
             // 握手成功时 获取用户ID填入在线用户列表
             OnlineUserService.put(ctx.channel().attr(WsHandshakeInterceptor.USERS).get(), ctx.channel());
         }

@@ -85,6 +85,9 @@ public class UserController implements UserServeApi {
         if (!user1.getPassword().equals(user.getPassword())) {
             return Result.error("用户密码错误");
         }
+        if (user1.getIsban()=='1') {
+            return Result.error("用户被封禁");
+        }
         boolean b = faceService.compareWithUser(imgBase64, "public", String.valueOf(user1.getId()));
         if (!b) {
             return Result.error("人脸对比失败");
@@ -239,11 +242,14 @@ public class UserController implements UserServeApi {
     // 申请修改角色
     @PostMapping("/uprole")
     @Operation(summary = "申请修改角色")
-    public Result upRole(String role) {
+    public Result upRole(@RequestBody String role) {
+        //将=替换
+        role = role.replace("=", "");
         Integer id = UserTool.getid();
         boolean save = roleReviewService.save(new RoleReview()
                 .setUserid(id)
                 .setRole(role)
+                .setStatus('0')
                 .setCreateTime(LocalDateTime.now())
         );
         if (save) {

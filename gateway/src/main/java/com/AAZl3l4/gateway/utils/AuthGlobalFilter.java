@@ -34,6 +34,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                 "/user-serve/authcode/getimg".equals(path) ||
                 "/user-serve/authcode/getemail".equals(path) ||
                 "/user-serve/pay/callback".equals(path)||
+                "/user-serve/sse/subscribe".equals(path)||
                 "/user-serve/wx/login/qrcode".equals(path)||
                 "/user-serve/wx/login/token".equals(path)||
                 "/user-serve/wx/bind/qrcode".equals(path)||

@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @Tag(name = "角色审核服务")
 @RequestMapping("/roleReview")
@@ -29,10 +31,10 @@ public class RoleReviewController {
     public Result reviewList(
             @RequestParam(required = false, defaultValue = "1") Integer pageNum,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false, defaultValue = "3") Integer status
+            @RequestParam(required = false, defaultValue = "4") Integer status
     ){
         //如果状态是3就全查询
-        if (status == 3) {
+        if (status == 4) {
             return Result.succeed(roleReviewService.page(new Page<>(pageNum, pageSize)));
         }else{
             return Result.succeed(roleReviewService.page(new Page<>(pageNum, pageSize), new QueryWrapper<RoleReview>().eq("status", status)));
@@ -44,10 +46,10 @@ public class RoleReviewController {
     @AopLog("审核用户角色")
     @PreAuthorize("hasAnyRole('ADMIN')")
     @GlobalTransactional(rollbackFor = Exception.class)
-    public Result review(
-            @RequestParam Integer id,
-            @RequestParam char status
-    ){
+    public Result review(@RequestBody Map<String, Object> requestData){
+        Integer id = (Integer) requestData.get("id");
+        String string = (String) requestData.get("status");
+        char status = string.charAt(0);
         RoleReview roleReview = roleReviewService.getById(id);
         if (roleReview == null) {
             return Result.error("审核信息不存在");

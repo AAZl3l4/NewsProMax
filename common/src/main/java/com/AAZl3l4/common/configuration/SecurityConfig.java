@@ -29,6 +29,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/wx/login/token").permitAll();
                     auth.requestMatchers("/wx/bind/qrcode").permitAll();
                     auth.requestMatchers("/wx/mp/callback").permitAll();
+                    auth.requestMatchers("/sse/subscribe").permitAll();
                     auth.requestMatchers("/list").permitAll();
                     auth.anyRequest().authenticated();
                 })

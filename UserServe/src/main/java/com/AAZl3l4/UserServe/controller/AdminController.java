@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Tag(name = "管理员服务")
@@ -22,10 +19,10 @@ public class AdminController {
     @Autowired
     private IUserService userService;
 
-    @GetMapping("/info")
+    @GetMapping("/info/{userid}")
     @Operation(summary = "管理员根据id获取用户的全部信息")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public Result getUserInfo(Integer userid) {
+    public Result getUserInfo(@PathVariable("userid") Integer userid) {
         return Result.succeed(userService.getById(userid));
     }
 
@@ -33,14 +30,12 @@ public class AdminController {
     @Operation(summary = "管理员更新用户的信息")
     @PreAuthorize("hasAnyRole('ADMIN')")
     @AopLog("管理员更新用户信息")
-    public Result updataUser(User user) {
-        boolean exists = userService.exists(
-                new QueryWrapper<User>()
-                        .eq("email", user.getEmail())
-                        .or()
-                        .eq("username", user.getName())
-        );
-        if (exists) {
+    public Result updataUser(@RequestBody User user) {
+        QueryWrapper<User> eq = new QueryWrapper<User>()
+                .eq("email", user.getEmail())
+                .or()
+                .eq("name", user.getName());
+        if (userService.getOne(eq).getId() != user.getId()){
             return Result.error("邮箱或用户名已存在");
         }else {
             boolean b = userService.updateById(user);
