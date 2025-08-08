@@ -97,7 +97,6 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSo
     // 异常
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-
         System.out.println("异常: " + ctx.channel().id());
         cause.printStackTrace();
         OnlineUserService.remove(ctx.channel().attr(WsHandshakeInterceptor.USERS).get());
