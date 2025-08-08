@@ -113,7 +113,7 @@ NewsProMax 是一个基于微服务架构的新闻电商综合平台，整合了
 - Maven 3.8+
 - MySQL 8.0
 - Redis
-- Elasticsearch
+- Elasticsearch 8.6
 - Sentinel
 - seata
 - RabbitMQ
