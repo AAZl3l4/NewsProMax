@@ -1,4 +1,4 @@
-package com.AAZl3l4.UserServe.pojo;
+package com.AAZl3l4.common.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

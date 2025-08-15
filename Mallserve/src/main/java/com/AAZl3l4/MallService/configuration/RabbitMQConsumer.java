@@ -41,11 +41,11 @@ public class RabbitMQConsumer {
             exchange = @Exchange(name = "delay.order", delayed = "true"), // 关键：delayed="true"
             key = "delay.order"
     ))
-    public void listenDelay(Integer msg) {
+    public void listenDelay(int msg) {
         log.info("收到延迟消息：{},已超时,已取消订单", msg);
         if (orderService.getById(msg).getStatus()==('0')){
             orderService.removeById(msg);
-            orderItemService.remove(new QueryWrapper<OrderItem>().eq("orderId", msg));
+            orderItemService.remove(new QueryWrapper<OrderItem>().eq("order_id", msg));
         }
     }
      /* 延迟发送消息:

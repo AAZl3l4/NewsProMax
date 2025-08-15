@@ -12,6 +12,8 @@ public interface ProductService {
 
     Product findById(Long id);
 
+    List<Product> list(int userid);
+
     List<Product> searchHighlightPage(String category,
                                       Float min,
                                       Float max,

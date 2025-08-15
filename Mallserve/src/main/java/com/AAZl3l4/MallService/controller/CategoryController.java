@@ -7,10 +7,7 @@ import com.AAZl3l4.common.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -25,10 +22,10 @@ public class CategoryController {
         return Result.succeed(categoryService.list());
     }
 
-    @GetMapping("/add")
+    @PostMapping("/add")
     @Operation(summary = "添加分类")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public Result add(Category category) {
+    public Result add(@RequestBody Category category) {
         boolean save = categoryService.save(category);
         if (!save) {
             return Result.error("添加失败");
@@ -37,10 +34,22 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/delete")
+    @PostMapping("/update")
+    @Operation(summary = "修改分类")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public Result update(@RequestBody Category category) {
+        boolean update = categoryService.updateById(category);
+        if (!update) {
+            return Result.error("修改失败");
+        }else{
+            return Result.succeed("修改成功");
+        }
+    }
+
+    @PostMapping("/delete/{id}")
     @Operation(summary = "删除分类")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public Result delete(Integer id) {
+    public Result delete(@PathVariable("id") Integer id) {
         boolean delete = categoryService.removeById(id);
         if (!delete) {
             return Result.error("删除失败");

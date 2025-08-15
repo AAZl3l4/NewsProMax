@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -34,6 +35,7 @@ public class ProductController {
     @PreAuthorize("hasAnyRole('MERCHANT')")
     public Result save(@RequestBody Product p) {
         p.setProductId(IdWorker.getId());
+        p.setOnShelfTime(String.valueOf(LocalDateTime.now()));
         if(service.findById(p.getProductId()) != null){
             return Result.error("商品已存在");
         }
@@ -91,6 +93,21 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/list")
+    @Operation(summary = "查询本人的商品")
+    @PreAuthorize("hasAnyRole('MERCHANT')")
+    public Result list() {
+        int id = UserTool.getid();
+        if (redisTemplate.opsForValue().get("user:product:" + id) != null){
+            return Result.succeed(redisTemplate.opsForValue().get("user:product:" + id));
+        }else{
+            List<Product> list = service.list(id);
+            if (list == null) return Result.succeed(List.of());
+            redisTemplate.opsForValue().set("user:product:" + id, list);
+            return Result.succeed(list);
+        }
+    }
+
     @GetMapping("/search")
     @Operation(summary = "分页/高亮/分类/价格区间查询 支持条件拼接 包括查看全部商品")
     public Result highlightPage(
@@ -100,11 +117,10 @@ public class ProductController {
             @RequestParam(required = false) String key,   // 允许为空
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        float minPrice = min == null ? Float.MIN_VALUE : min;
+        float minPrice = min == null ? 0 : min;
         float maxPrice = max == null ? Float.MAX_VALUE : max;
 
         String keyword = key == null ? "" : key.trim();
-
 
         return Result.succeed(service.searchHighlightPage(
                 category, minPrice, maxPrice, keyword,

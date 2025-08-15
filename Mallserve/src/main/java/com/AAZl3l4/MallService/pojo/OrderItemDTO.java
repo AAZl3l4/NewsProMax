@@ -7,5 +7,4 @@ import java.util.List;
 @Data
 public class OrderItemDTO {
     List<OrderItem> orders;
-    Integer AddressId;
 }

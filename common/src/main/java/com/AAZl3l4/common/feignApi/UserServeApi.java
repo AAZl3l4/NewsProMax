@@ -1,5 +1,6 @@
 package com.AAZl3l4.common.feignApi;
 
+import com.AAZl3l4.common.pojo.Address;
 import com.AAZl3l4.common.pojo.User;
 import com.AAZl3l4.common.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +22,7 @@ public interface UserServeApi {
 
     @GetMapping("/getDefault")
     @Operation(summary = "查询默认地址")
-    public Result getDefault(@RequestParam("userId") Integer userId);
+    public Result<Address> getDefault(@RequestParam("userId") Integer userId);
 
     @GetMapping("/info")
     @Operation(summary = "通过id查询用户信息")

@@ -1,6 +1,6 @@
 package com.AAZl3l4.UserServe.mapper;
 
-import com.AAZl3l4.UserServe.pojo.Address;
+import com.AAZl3l4.common.pojo.Address;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

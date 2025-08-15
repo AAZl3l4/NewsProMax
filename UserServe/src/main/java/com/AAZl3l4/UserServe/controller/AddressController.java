@@ -1,7 +1,7 @@
 package com.AAZl3l4.UserServe.controller;
 
 
-import com.AAZl3l4.UserServe.pojo.Address;
+import com.AAZl3l4.common.pojo.Address;
 import com.AAZl3l4.UserServe.service.IAddressService;
 import com.AAZl3l4.common.utils.Result;
 import com.AAZl3l4.common.utils.UserTool;

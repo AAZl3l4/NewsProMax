@@ -33,6 +33,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> list(int userid) {
+        //从es查询
+        return repo.findAllByMerchantId(userid);
+    }
+
+    @Override
     public List<Product> searchHighlightPage(String category,
                                              Float min,
                                              Float max,

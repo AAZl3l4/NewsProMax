@@ -1,7 +1,7 @@
 package com.AAZl3l4.UserServe.controller;
 
 
-import com.AAZl3l4.UserServe.pojo.Address;
+import com.AAZl3l4.common.pojo.Address;
 import com.AAZl3l4.UserServe.pojo.RoleReview;
 import com.AAZl3l4.UserServe.pojo.UserDTO;
 import com.AAZl3l4.UserServe.service.FaceService;
@@ -166,6 +166,15 @@ public class UserController implements UserServeApi {
         return user;
     }
 
+    @Operation(summary = "退出登录")
+    @GetMapping("/logout")
+    public Result logout() {
+        Integer id = UserTool.getid();
+        redisTemplate.delete("jwt:" + id);
+        return Result.succeed("退出成功");
+    }
+
+
     @PostMapping("/update")
     @Operation(summary = "更新用户信息")
     public Result updateUser(@RequestBody User user) {
@@ -261,8 +270,8 @@ public class UserController implements UserServeApi {
 
     @GetMapping("/getDefault")
     @Operation(summary = "查询默认地址")
-    public Result getDefault(Integer userId) {
-        Address byId = addressService.getById(new QueryWrapper<Address>().eq("userId", userId).eq("isDefault", '1'));
+    public Result<Address> getDefault(Integer userId) {
+        Address byId = addressService.getOne(new QueryWrapper<Address>().eq("user_id", userId).eq("is_default", '1'));
         return Result.succeed(byId);
     }
 }

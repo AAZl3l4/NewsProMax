@@ -49,10 +49,10 @@ public class AuthCodeController {
         String code = String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
 
         // 发送验证码邮件
-//        mailService.sendText(email, "验证码", code);
+        mailService.sendText(email, "验证码", code);
+//        System.out.println(code);
         // 验证码存入redis 并设置60s过期
         redisTemplate.opsForValue().set("emailCode:"+email, code, 120, TimeUnit.SECONDS);
-        System.out.println(code);
 
         return Result.succeed("发送成功");
     }

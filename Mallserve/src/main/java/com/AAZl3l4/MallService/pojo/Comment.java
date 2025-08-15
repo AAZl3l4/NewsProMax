@@ -27,7 +27,7 @@ public class Comment implements Serializable {
     private Integer id;
 
     @NotNull
-    private Integer productId;
+    private Long productId;
 
     private LocalDateTime creationTime;
 

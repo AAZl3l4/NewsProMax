@@ -68,4 +68,8 @@ public interface ProductRepository extends ElasticsearchRepository<Product, Stri
             Float maxPrice,
             String keyword,
             Pageable pageable);
+
+    // 查询 MerchantId 为指定参数的所有商品
+    @Query("{\"term\": {\"MerchantId\": \"?0\"}}")
+    List<Product> findAllByMerchantId(Integer merchantId);
 }

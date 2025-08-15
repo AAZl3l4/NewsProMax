@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 
@@ -30,7 +31,7 @@ public class CommentController {
 
     @GetMapping("/list/{id}")
     @Operation(summary = "分页查询当前商品的所有评论")
-    public Result list(@PathVariable Integer id,
+    public Result list(@PathVariable Long id,
                        @RequestParam(defaultValue = "0") Integer page,
                        @RequestParam(defaultValue = "10") Integer size) {
         QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
@@ -56,6 +57,7 @@ public class CommentController {
     @Operation(summary = "添加评论")
     public Result add(@RequestBody Comment comment) {
         comment.setUserid(UserTool.getid());
+        comment.setCreationTime(LocalDateTime.now());
         return commentService.save(comment) ? Result.succeed("添加成功") : Result.error("添加失败");
     }
 

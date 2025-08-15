@@ -2,11 +2,13 @@ package com.AAZl3l4.MallService.controller;
 
 
 import com.AAZl3l4.MallService.pojo.*;
+import com.AAZl3l4.MallService.service.ICartItemService;
 import com.AAZl3l4.MallService.service.IOrderItemService;
 import com.AAZl3l4.MallService.service.IOrderService;
 import com.AAZl3l4.MallService.service.ProductService;
 import com.AAZl3l4.MallService.utils.ExcelUtils;
 import com.AAZl3l4.common.feignApi.UserServeApi;
+import com.AAZl3l4.common.pojo.Address;
 import com.AAZl3l4.common.pojo.User;
 import com.AAZl3l4.common.utils.Result;
 import com.AAZl3l4.common.utils.UserTool;
@@ -21,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/order")
@@ -37,11 +41,14 @@ public class OrderController {
     private ProductService productService;
     @Autowired
     private UserServeApi userService;
+    @Autowired
+    private ICartItemService cartService;
 
     @PostMapping("/create")
     @Operation(summary = "添加订单")
     @GlobalTransactional(rollbackFor = Exception.class)
     public Result create(@RequestBody OrderItemDTO orders) {
+        System.out.println(orders.getOrders());
         Order order1 = new Order();
         // 计算总价 并设置订单详细信息
         for (OrderItem order : orders.getOrders()) {
@@ -55,14 +62,19 @@ public class OrderController {
             order.setUnitPrice(Double.valueOf(product.getPrice()));
             double v = order.getUnitPrice() * order.getQuantity();
             order.setAmount(v);
-            order1.setAmount(order1.getAmount() + v);
+            if (order1.getAmount() == null){
+                order1.setAmount(order.getAmount());
+            }else {
+                order1.setAmount(order1.getAmount() + v);
+            }
         }
         // 添加订单
         order1.setUserId(UserTool.getid());
         order1.setCreateTime(LocalDateTime.now());
-        Address data = (Address) userService.getDefault(orders.getAddressId()).getData();
+        Address data = (Address) userService.getDefault(UserTool.getid()).getData();
         order1.setUserAddress(data.getAddress());
         order1.setUserPhone(data.getPhone());
+        order1.setStatus('0');
         boolean save1 = orderService.save(order1);
         if (save1) {
             //添加订单项
@@ -81,6 +93,8 @@ public class OrderController {
                         return m;
                     }
             );
+            //清空购物车
+            cartService.remove(new QueryWrapper<CartItem>().eq("user_id", UserTool.getid()));
             return Result.succeed("下单成功");
         } else {
             return Result.error("下单失败");
@@ -94,10 +108,56 @@ public class OrderController {
         if (order.getUserId() == UserTool.getid() && order.getStatus() == ('0')) {
             order.setStatus('4');
             orderService.updateById(order);
-            orderItemService.remove(new QueryWrapper<OrderItem>().eq("order_id", orderId));
             return Result.succeed("取消成功");
         } else {
             return Result.error("取消失败");
+        }
+    }
+
+    @GetMapping("/Mlist")
+    @Operation(summary = "查询本商家的订单")
+    @PreAuthorize("hasAnyRole('MERCHANT')")
+    public Result Mlist() {
+        List<Product> list1 = productService.list(UserTool.getid());
+        ArrayList<Order> orders = new ArrayList<>();
+        for (Product product : list1) {
+            List<OrderItem> productId = orderItemService.list(new QueryWrapper<OrderItem>().eq("product_id", product.getProductId()));
+            for (OrderItem orderItem : productId) {
+                Order order = orderService.getById(orderItem.getOrderId());
+                if (order.getStatus() == ('1')) {
+                    orders.add(order);
+                }
+            }
+        }
+        return Result.succeed(orders);
+    }
+    @Operation(summary = "发货")
+    @PostMapping("/deliver")
+    @PreAuthorize("hasAnyRole('MERCHANT')")
+    @GlobalTransactional(rollbackFor = Exception.class)
+    public Result deliver(Integer orderId) {
+        Order order = orderService.getById(orderId);
+        System.out.println(order);
+        if (order.getStatus() == ('1')) {
+            order.setStatus('2');
+            order.setUpdateTime(LocalDateTime.now());
+            return orderService.updateById(order) ? Result.succeed("发货成功") : Result.error("发货失败");
+        } else {
+            return Result.error("发货失败");
+        }
+    }
+
+    @Operation(summary = "收货")
+    @PostMapping("/receive")
+    @GlobalTransactional(rollbackFor = Exception.class)
+    public Result receive(Integer orderId) {
+        Order order = orderService.getById(orderId);
+        if (Objects.equals(order.getUserId(), UserTool.getid()) && order.getStatus() == ('2')) {
+            order.setStatus('3');
+            order.setUpdateTime(LocalDateTime.now());
+            return orderService.updateById(order) ? Result.succeed("收货成功") : Result.error("收货失败");
+        } else {
+            return Result.error("收货失败");
         }
     }
 
@@ -115,9 +175,14 @@ public class OrderController {
             return Result.error("余额不足");
         }
         userById.setMoney(userById.getMoney() - amount);
+        userById.setName(null);
+        userById.setPassword(null);
+        userById.setEmail(null);
         Result result = userService.updateUser(userById);
+        System.out.println(result);
         if (result.getCode() == 200) {
             byId.setStatus('1');
+            byId.setUpdateTime(LocalDateTime.now());
             return orderService.updateById(byId) ? Result.succeed("支付成功") : Result.error("支付失败");
         }else {
             return Result.error("支付失败");
@@ -130,14 +195,11 @@ public class OrderController {
         return Result.succeed(orderService.list(new QueryWrapper<Order>().eq("user_id", UserTool.getid())));
     }
 
-    @GetMapping("/info")
+    @GetMapping("/info/{id}")
     @Operation(summary = "查询订单详细")
-    public Result<Order> info(Long id) {
-        Order byId = orderService.getById(id);
-        if (!UserTool.getid().equals(byId.getUserId())) {
-            return Result.error("无权限");
-        }
-        return Result.succeed(byId);
+    public Result info(@PathVariable("id")Long id) {
+        OrderItem orderId = orderItemService.getOne(new QueryWrapper<OrderItem>().eq("order_id", id));
+        return Result.succeed(orderId);
     }
 
     @GetMapping("/report")
