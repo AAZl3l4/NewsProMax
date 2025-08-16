@@ -42,15 +42,8 @@ public class PullController {
     | size | int | 是 | 本次拉取条数 |
     */
     public Result group(Long last, int size) {
-        //接入缓存
-        Object o = redisTemplate.opsForValue().get("group");
-        if (o != null) {
-            return Result.succeed((List<Message>)o);
-        }else {
-            List<Message> messages = messageService.pullGroup(String.valueOf(1), last, size);
-            redisTemplate.opsForValue().set("group",messages ,60, TimeUnit.SECONDS);
-            return Result.succeed(messages);
-        }
+        List<Message> messages = messageService.pullGroup(String.valueOf(1), last, size);
+        return Result.succeed(messages);
     }
 
     @GetMapping("/list")

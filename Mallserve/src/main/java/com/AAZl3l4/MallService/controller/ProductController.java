@@ -32,7 +32,7 @@ public class ProductController {
 
     @PostMapping("/add")
     @Operation(summary = "新增")
-    @PreAuthorize("hasAnyRole('MERCHANT')")
+    @PreAuthorize("hasAnyRole('MERCHANT','ADMIN')")
     public Result save(@RequestBody Product p) {
         p.setProductId(IdWorker.getId());
         p.setOnShelfTime(String.valueOf(LocalDateTime.now()));
@@ -50,7 +50,7 @@ public class ProductController {
 
     @PostMapping("/delete/{id}")
     @Operation(summary = "根据主键删除")
-    @PreAuthorize("hasAnyRole('MERCHANT')")
+    @PreAuthorize("hasAnyRole('MERCHANT','ADMIN')")
     public Result delete(@PathVariable Long id) {
         Product p = service.findById(id);
         if (!Objects.equals(p.getMerchantId(), UserTool.getid())){
@@ -67,7 +67,7 @@ public class ProductController {
 
     @PostMapping("/update")
     @Operation(summary = "根据主键更新")
-    @PreAuthorize("hasAnyRole('MERCHANT')")
+    @PreAuthorize("hasAnyRole('MERCHANT','ADMIN')")
     public Result update(@RequestBody Product p) {
         if (!Objects.equals(p.getMerchantId(), UserTool.getid())){
             return Result.error("没有权限");
@@ -95,7 +95,7 @@ public class ProductController {
 
     @GetMapping("/list")
     @Operation(summary = "查询本人的商品")
-    @PreAuthorize("hasAnyRole('MERCHANT')")
+    @PreAuthorize("hasAnyRole('MERCHANT','ADMIN')")
     public Result list() {
         int id = UserTool.getid();
         if (redisTemplate.opsForValue().get("user:product:" + id) != null){

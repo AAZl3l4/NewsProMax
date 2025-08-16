@@ -7,11 +7,7 @@ import com.AAZl3l4.common.utils.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -26,7 +22,7 @@ public class NewsCategoryController {
         return Result.succeed(newsCategoryService.list());
     }
 
-    @GetMapping("/add")
+    @PostMapping("/add")
     @Operation(summary = "添加分类")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public Result add(@RequestBody NewsCategory newsCategory) {
@@ -38,15 +34,27 @@ public class NewsCategoryController {
         }
     }
 
-    @GetMapping("/delete")
+    @PostMapping("/delete/{id}")
     @Operation(summary = "删除分类")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public Result delete(Integer id) {
+    public Result delete(@PathVariable("id") Integer id) {
         boolean del = newsCategoryService.removeById(id);
         if (!del) {
             return Result.error("添加失败");
         }else {
             return Result.succeed("添加成功");
+        }
+    }
+
+    @PostMapping("/update")
+    @Operation(summary = "更新分类")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public Result update(@RequestBody NewsCategory newsCategory) {
+        boolean update = newsCategoryService.updateById(newsCategory);
+        if (!update) {
+            return Result.error("更新失败");
+        }else {
+            return Result.succeed("更新成功");
         }
     }
 

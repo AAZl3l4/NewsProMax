@@ -14,11 +14,14 @@ import java.time.LocalDateTime;
 public class Article {
 
     @Id
+    @Field(type = FieldType.Long)
     private Long articleId;
 
     private Integer authorId;
+
     private Integer categoryId;
-    private Integer productId;
+    @Field(type = FieldType.Long)
+    private Long productId;
 
     @GeoPointField
     private GeoPoint location;

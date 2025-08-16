@@ -16,7 +16,7 @@ public class ArticleSearchVo {
     private Long articleId;
     private Integer authorId;
     private Integer categoryId;
-    private Integer productId;
+    private Long productId;
     private GeoPoint location;
     private String title;
     private String content;

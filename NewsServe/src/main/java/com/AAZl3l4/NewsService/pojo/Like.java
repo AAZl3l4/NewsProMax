@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("like")
+@TableName("`like`")
 @Tag(name="Like对象")
 public class Like implements Serializable {
 
@@ -27,7 +27,6 @@ public class Like implements Serializable {
     private Integer id;
 
     @TableField("user_id")
-    @NotNull
     private Integer userId;
 
     @TableField("news_id")

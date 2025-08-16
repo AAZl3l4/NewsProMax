@@ -40,7 +40,7 @@ public class NewsContent implements Serializable {
 
     @TableField("news_id")
     @NotNull
-    private Integer newsId;
+    private Long newsId;
 
 
 }

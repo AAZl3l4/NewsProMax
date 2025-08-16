@@ -116,7 +116,7 @@ public class OrderController {
 
     @GetMapping("/Mlist")
     @Operation(summary = "查询本商家的订单")
-    @PreAuthorize("hasAnyRole('MERCHANT')")
+    @PreAuthorize("hasAnyRole('MERCHANT','ADMIN')")
     public Result Mlist() {
         List<Product> list1 = productService.list(UserTool.getid());
         ArrayList<Order> orders = new ArrayList<>();
@@ -133,7 +133,7 @@ public class OrderController {
     }
     @Operation(summary = "发货")
     @PostMapping("/deliver")
-    @PreAuthorize("hasAnyRole('MERCHANT')")
+    @PreAuthorize("hasAnyRole('MERCHANT','ADMIN')")
     @GlobalTransactional(rollbackFor = Exception.class)
     public Result deliver(Integer orderId) {
         Order order = orderService.getById(orderId);
@@ -204,7 +204,7 @@ public class OrderController {
 
     @GetMapping("/report")
     @Operation(summary = "导出报表")
-    @PreAuthorize("hasAnyRole('MERCHANT')")
+    @PreAuthorize("hasAnyRole('MERCHANT','ADMIN')")
     public void report(Integer productId,HttpServletResponse response) throws IOException {
         Product byId = productService.findById(Long.valueOf(productId));
         if (byId.getMerchantId() != UserTool.getid()) {

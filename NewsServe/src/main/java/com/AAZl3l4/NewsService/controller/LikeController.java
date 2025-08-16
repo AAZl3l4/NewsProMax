@@ -17,6 +17,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,7 @@ public class LikeController {
     @Operation(summary = "添加/取消点赞点赞")
     public Result add(@RequestBody Like like) {
         like.setUserId(UserTool.getid());
+        like.setLikeTime(LocalDateTime.now());
         //检测是否已点赞
         QueryWrapper<Like> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", like.getUserId());
@@ -59,7 +61,7 @@ public class LikeController {
         }
     }
 
-    @PostMapping("/list")
+    @GetMapping("/list")
     @Operation(summary = "分页查询当前用户所有点赞")
     public Result list(
             @RequestParam(defaultValue = "0") Integer page,
@@ -86,6 +88,16 @@ public class LikeController {
         return Result.succeed(resultPage);
     }
 
+
+    @Operation(summary = "查询当前用户是否点赞")
+    @GetMapping("/isLike/{newsId}")
+    public Result isLike(@PathVariable Long newsId) {
+        QueryWrapper<Like> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", UserTool.getid());
+        wrapper.eq("news_id", newsId);
+        boolean exists = likeService.exists(wrapper);
+        return Result.succeed(exists);
+    }
 
 
 }

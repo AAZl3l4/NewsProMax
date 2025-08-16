@@ -30,7 +30,7 @@ public class NewsContentController {
 
     @GetMapping("/list/{id}")
     @Operation(summary = "分页查询当前文章的所有评论")
-    public Result list(@PathVariable Integer id,
+    public Result list(@PathVariable Long id,
                        @RequestParam(defaultValue = "0") Integer page,
                        @RequestParam(defaultValue = "10") Integer size) {
         QueryWrapper<NewsContent> queryWrapper = new QueryWrapper<>();
@@ -55,6 +55,7 @@ public class NewsContentController {
     @PostMapping("/add")
     @Operation(summary = "添加评论")
     public Result add(@RequestBody NewsContent comment) {
+        if (comment.getContent().equals("<script>"))return Result.error("包含js语句");
         comment.setUserId(UserTool.getid());
         return commentService.save(comment) ? Result.succeed("添加成功") : Result.error("添加失败");
     }

@@ -56,6 +56,7 @@ public class CommentController {
     @PostMapping("/add")
     @Operation(summary = "添加评论")
     public Result add(@RequestBody Comment comment) {
+        if (comment.getContent().equals("<script>"))return Result.error("包含js语句");
         comment.setUserid(UserTool.getid());
         comment.setCreationTime(LocalDateTime.now());
         return commentService.save(comment) ? Result.succeed("添加成功") : Result.error("添加失败");
