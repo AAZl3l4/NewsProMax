@@ -51,6 +51,7 @@ public class AliPayController {
     @Operation(summary = "创建支付")
     @AopLog("创建支付宝支付")
     public String createPayment(@RequestParam String orderId, @RequestParam Double amount) {
+        System.out.println(orderId);
         try {
             AlipayTradePagePayResponse alipayTradePagePayResponse = Factory.Payment.Page().pay(
                     "NewsProMax充值",  // 商品标题
@@ -81,7 +82,6 @@ public class AliPayController {
     @AopLog("支付宝支付已经完成 异步通知处理")
     @GlobalTransactional(rollbackFor = Exception.class)
     public String handleCallback(HttpServletRequest request) {
-        System.out.println("异步通知处理");
         Map<String, String> params = new HashMap<>();
         request.getParameterMap().forEach((key, values) -> params.put(key, values[0]));
         try {
@@ -92,9 +92,17 @@ public class AliPayController {
                 String orderId = params.get("out_trade_no"); // 商户订单号
                 String tradeStatus = params.get("trade_status"); // 交易状态
                 BigDecimal amount = new BigDecimal(params.get("total_amount")); // 订单金额
+                // 从orderId中获取用户id
+                String s = orderId.split("-")[1];
+                // 判断用户id是否为空
+                if (s == null || "".equals(s)) {
+                    return "failure";
+                }
+                int userId = Integer.parseInt(s);
+                // 判断用户id是否为空
                 if ("TRADE_SUCCESS".equals(tradeStatus)) {
                     // 使用户的积分加上去退款金额
-                    User byId = userService.getById(UserTool.getid());
+                    User byId = userService.getById(userId);
                     BigDecimal currentMoney = BigDecimal.valueOf(byId.getMoney());
                     byId.setMoney(currentMoney.add(amount).doubleValue());
                     userService.updateById(byId);
@@ -104,6 +112,7 @@ public class AliPayController {
                 return "failure";
             }
         } catch (Exception e) {
+            e.printStackTrace();
             return "failure";
         }
     }
