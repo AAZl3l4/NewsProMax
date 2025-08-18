@@ -27,6 +27,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        ServerHttpResponse response = exchange.getResponse();
         // 获取当前请求路径
         String path = request.getURI().getPath();
         if ("/user-serve/login".equals(path) ||
@@ -57,6 +58,11 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             // 验证JWT是否被销毁
             if (!jwt.equals(redisTemplate.opsForValue().get("jwt:"+user.getId()))){
                 return unauthorized(exchange);
+            }
+            // token续期
+            String newToken = jwtUtil.renewIfNeeded(jwt);
+            if (!newToken.equals(jwt)) {
+                response.getHeaders().add("X-New-Token", newToken);
             }
 
             // 给下游信息添加请求头
