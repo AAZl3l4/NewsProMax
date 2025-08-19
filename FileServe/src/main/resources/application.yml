@@ -1,0 +1,67 @@
+server:
+  port: 8002
+
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  application:
+    name: file-serve
+  cloud:
+    nacos:
+      discovery: #注册中心相关配置
+        server-addr: 192.168.188.188:8848 #默认是本地的8848(可在nacos.直接同时设置注册中心和配置中心的地址)
+        cluster-name: default-cluster #可通过配置负载均衡器 实现优先选择同一集群的服务(NacosLoadBalancer)
+        namespace: public #在控制台新建 用于环境隔离 不同namespace下的服务不可见
+        ephemeral: true #设置为非临时实例
+    sentinel:
+      transport:
+        dashboard: http://192.168.188.188:8858 # 设置Sentinel控制台的地址和端口
+        port: 8719               # 设置与Sentinel控制台通信的端口，默认为8719
+      web-context-unify: false   # 关闭上下文聚合
+      http-method-specify: true # 开启请求方式前缀
+  servlet:
+    multipart:
+          max-file-size: 100MB  # 单个文件最大大小
+          max-request-size: 100MB  # 单个请求最大大小
+
+seata:
+  registry: #配置TC服务注册中心的配置 微服务根据这些信息去注册中心获取tc服务地址
+    # 参考tc服务的registry.conf中的配置
+    # 包括: 地址 namespace group application-name cluster
+    type: nacos #指定注册中心类型
+    nacos: #nacos配置
+      server-addr: 192.168.188.188:8848
+      namespace: "" #命名空间 空就是默认 即public
+      group: SEATA_GROUP #默认分组
+      application: seata-server #tc服务在nacos中的服务名称
+  tx-service-group: seata #事务组 根据这个获取tc服务的cluster名称
+  service:
+    vgroup-mapping: #事务组与TC服务cluster的映射关系
+      seata:  default #集群名
+  data-source-proxy-mode: AT #开启指定的数据源代理模式 默认AT
+
+
+# springdoc-openapi项目配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.AAZl3l4.FileService
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+
+#minio的配置
+minio:
+  endpoint: http://192.168.188.188:9000
+  accessKey:
+  secretKey:
+  bucket:
