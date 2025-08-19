@@ -66,11 +66,11 @@ public class WsMqConsumer {
             return;
         }
         members.forEach(user -> {
-            //向除自己外的群成员发送消息
             String userid = String.valueOf(user.getId());
-            if (userid.equals(p.getFrom())) {
-                return;
-            }
+            //向除自己外的群成员发送消息 根据前端功能调整 这里不处理 群聊消息直接发送给所有用户
+//            if (userid.equals(p.getFrom())) {
+//                return;
+//            }
             Channel ch = onlineUserService.getChannel(userid);
             if (ch != null && ch.isActive()) {
                 ch.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(p)));
