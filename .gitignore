@@ -60,7 +60,7 @@ build/
 *.war
 *.nar
 *.ear
-#*.zip # 前端文件
+#*.zip # 前端文件 暂不忽略
 *.tar.gz
 *.rar
 *.pb
