@@ -89,6 +89,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .fields("title", hf -> hf)
                 .fields("content", hf -> hf));
 
+        // 8. 构建查询
         SearchRequest request = SearchRequest.of(s -> s
                 .index("article")
                 .query(bool.build()._toQuery())

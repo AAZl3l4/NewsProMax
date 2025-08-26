@@ -31,18 +31,19 @@ public class EsConfig {
 
     @Bean
     public ElasticsearchClient elasticsearchClient() {
-        String username = "elastic";
-        String password = "123456";
+        String username = "elastic"; //es 用户名
+        String password = "123456"; //es 密码
 
+        // 创建认证
         BasicCredentialsProvider credentials = new BasicCredentialsProvider();
         credentials.setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(username, password));
+        // 设置序列化器
         ObjectMapper mapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         JacksonJsonpMapper jsonpMapper = new JacksonJsonpMapper(mapper);
-
-        // 注意：http 而不是 https
+        // 创建链接 注意：http 而不是 https
         RestClient restClient = RestClient.builder(
                         new HttpHost("192.168.188.188", 9200, "http"))
                 .setHttpClientConfigCallback(hcb -> hcb
