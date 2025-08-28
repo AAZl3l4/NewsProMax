@@ -1,6 +1,6 @@
 package com.AAZl3l3.NettyWSServe.service;
 
-import com.AAZl3l3.NettyWSServe.Configuration.WsHandshakeInterceptor;
+import com.AAZl3l3.NettyWSServe.configuration.WsHandshakeInterceptor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;

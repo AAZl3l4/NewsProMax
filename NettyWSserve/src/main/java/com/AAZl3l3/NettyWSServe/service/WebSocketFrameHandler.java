@@ -1,6 +1,6 @@
 package com.AAZl3l3.NettyWSServe.service;
 
-import com.AAZl3l3.NettyWSServe.Configuration.WsHandshakeInterceptor;
+import com.AAZl3l3.NettyWSServe.configuration.WsHandshakeInterceptor;
 import com.AAZl3l3.NettyWSServe.pojo.MsgProtocol;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;

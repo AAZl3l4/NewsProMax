@@ -1,6 +1,6 @@
 package com.AAZl3l3.NettyWSServe.service;
 
-import com.AAZl3l3.NettyWSServe.Configuration.MqConfig;
+import com.AAZl3l3.NettyWSServe.configuration.MqConfig;
 import com.AAZl3l3.NettyWSServe.pojo.MsgProtocol;
 import com.AAZl3l4.common.pojo.User;
 import com.alibaba.fastjson.JSON;

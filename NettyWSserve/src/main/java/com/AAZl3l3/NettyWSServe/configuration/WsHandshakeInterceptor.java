@@ -1,4 +1,4 @@
-package com.AAZl3l3.NettyWSServe.Configuration;
+package com.AAZl3l3.NettyWSServe.configuration;
 
 import com.AAZl3l3.NettyWSServe.utils.JwtUtil;
 import com.AAZl3l4.common.pojo.User;
@@ -8,11 +8,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.AttributeKey;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class WsHandshakeInterceptor extends ChannelInboundHandlerAdapter {
     // 自定义 AttributeKey(给 每个Netty连接 准备的一个 “线程安全的ThreadLocalMap”用来在整个连接生命周期内跨Handler共享数据)
