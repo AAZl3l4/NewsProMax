@@ -26,7 +26,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws IOException, ServletException {
         // 跳过登录和注册和验证码
         String path = req.getRequestURI();
-        if ("/login".equals(path) || "/register".equals(path) || "/authcode/getimg".equals(path) || "/authcode/getemail".equals(path)) {
+        if ("/login".equals(path) || "/register".equals(path) || "/authcode/getimg".equals(path) || "/authcode/getemail".equals(path) || "/logout".equals(path)) {
             chain.doFilter(req, resp);
             return;
         }
