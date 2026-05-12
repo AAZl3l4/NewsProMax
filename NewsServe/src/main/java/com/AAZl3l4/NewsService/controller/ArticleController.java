@@ -4,6 +4,7 @@ import com.AAZl3l4.NewsService.pojo.Article;
 import com.AAZl3l4.NewsService.pojo.ArticleSearchParam;
 import com.AAZl3l4.NewsService.service.ArticleService;
 import com.AAZl3l4.common.utils.Result;
+import com.AAZl3l4.common.utils.SensitiveWordUtil;
 import com.AAZl3l4.common.utils.UserTool;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +35,9 @@ public class ArticleController {
         a.setCreateTime(LocalDateTime.now());
         a.setUpdateTime(a.getCreateTime());
         if (a.getContent().equals("<script>"))return Result.error("包含js语句");
+        // 敏感词过滤 - 替换标题和内容中的敏感词
+        a.setTitle(SensitiveWordUtil.replaceSensitiveWords(a.getTitle()));
+        a.setContent(SensitiveWordUtil.replaceSensitiveWords(a.getContent()));
         Article save = service.save(a);
         return save == null ? Result.error("保存失败") : Result.succeed("保存成功");
     }
@@ -65,6 +69,9 @@ public class ArticleController {
                 // 不覆盖的字段：主键、创建时间、作者 id
                 "articleId", "createTime", "authorId");
         old.setUpdateTime(LocalDateTime.now());
+        // 敏感词过滤 - 替换标题和内容中的敏感词
+        old.setTitle(SensitiveWordUtil.replaceSensitiveWords(old.getTitle()));
+        old.setContent(SensitiveWordUtil.replaceSensitiveWords(old.getContent()));
         redisTemplate.delete("article:" + old.getArticleId());
         Article save = service.save(old);
         return save == null ? Result.error("更新失败") : Result.succeed("更新成功");

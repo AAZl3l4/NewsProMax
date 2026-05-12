@@ -7,6 +7,7 @@ import com.AAZl3l4.NewsService.service.INewsContentService;
 import com.AAZl3l4.common.feignApi.UserServeApi;
 import com.AAZl3l4.common.pojo.User;
 import com.AAZl3l4.common.utils.Result;
+import com.AAZl3l4.common.utils.SensitiveWordUtil;
 import com.AAZl3l4.common.utils.UserTool;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -56,6 +57,8 @@ public class NewsContentController {
     @Operation(summary = "添加评论")
     public Result add(@RequestBody NewsContent comment) {
         if (comment.getContent().equals("<script>"))return Result.error("包含js语句");
+        // 敏感词过滤 - 替换评论内容中的敏感词
+        comment.setContent(SensitiveWordUtil.replaceSensitiveWords(comment.getContent()));
         comment.setUserId(UserTool.getid());
         return commentService.save(comment) ? Result.succeed("添加成功") : Result.error("添加失败");
     }
