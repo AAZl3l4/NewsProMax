@@ -59,10 +59,14 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             if (!jwt.equals(redisTemplate.opsForValue().get("jwt:"+user.getId()))){
                 return unauthorized(exchange);
             }
-            // token续期
-            String newToken = jwtUtil.renewIfNeeded(jwt);
-            if (!newToken.equals(jwt)) {
-                response.getHeaders().add("X-New-Token", newToken);
+            // token续期 - 仅当存在RefreshToken时才续期
+            if (redisTemplate.hasKey("refresh:" + user.getId())) {
+                String newToken = jwtUtil.renewIfNeeded(jwt);
+                if (!newToken.equals(jwt)) {
+                    response.getHeaders().add("X-New-Token", newToken);
+                    // 同步更新Redis中的AccessToken
+                    redisTemplate.opsForValue().set("jwt:" + user.getId(), newToken);
+                }
             }
 
             // 给下游信息添加请求头

@@ -94,10 +94,12 @@ public class UserController implements UserServeApi {
         }
         // 设置jwt 不携带密码
         user1.setPassword(null);
-        String s = jwtUtil.create(user1);
-        // 保存jwt到redis
-        redisTemplate.opsForValue().set("jwt:" + user1.getId(), s,jwtExpiration * 60000, TimeUnit.MILLISECONDS);
-        return Result.succeed(s);
+        String accessToken = jwtUtil.create(user1);
+        // 保存AccessToken到redis
+        redisTemplate.opsForValue().set("jwt:" + user1.getId(), accessToken, jwtExpiration * 60000, TimeUnit.MILLISECONDS);
+        // 保存RefreshToken到redis（7天过期，用于Gateway判断是否允许续期）
+        redisTemplate.opsForValue().set("refresh:" + user1.getId(), "1", 7, TimeUnit.DAYS);
+        return Result.succeed(accessToken);
     }
 
     @PostMapping("/register")
@@ -170,7 +172,9 @@ public class UserController implements UserServeApi {
     @GetMapping("/logout")
     public Result logout() {
         Integer id = UserTool.getid();
+        // 删除AccessToken和RefreshToken
         redisTemplate.delete("jwt:" + id);
+        redisTemplate.delete("refresh:" + id);
         return Result.succeed("退出成功");
     }
 
