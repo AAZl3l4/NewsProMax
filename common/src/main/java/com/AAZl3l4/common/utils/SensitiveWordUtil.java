@@ -1,6 +1,5 @@
 package com.AAZl3l4.common.utils;
 
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -42,26 +41,24 @@ public class SensitiveWordUtil {
     /**
      * 初始化加载敏感词库
      */
-    @PostConstruct
-    public void init() {
+    // 静态代码块：类加载时自动执行，不依赖 Spring
+    static {
         try {
             ClassPathResource resource = new ClassPathResource(WORD_FILE);
             if (!resource.exists()) {
                 log.warn("敏感词库文件不存在: {}", WORD_FILE);
-                return;
-            }
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (line.isEmpty() || line.startsWith("#")) {
-                    continue;
+            } else {
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (line.isEmpty() || line.startsWith("#")) continue;
+                    addWord(line);
                 }
-                addWord(line);
+                reader.close();
+                log.info("敏感词库加载完成，共 {} 个敏感词", WORD_TREE.size());
             }
-            reader.close();
-            log.info("敏感词库加载完成，共 {} 个敏感词", WORD_TREE.size());
         } catch (Exception e) {
             log.error("敏感词库加载失败", e);
         }
@@ -72,7 +69,7 @@ public class SensitiveWordUtil {
      *
      * @param word 敏感词
      */
-    private void addWord(String word) {
+    private static void addWord(String word) {
         if (word == null || word.isEmpty()) {
             return;
         }
@@ -143,6 +140,8 @@ public class SensitiveWordUtil {
                 positions.add(new int[]{i, i + length});
                 i = i + length - 1;
             }
+            log.info("了、 {}",length);
+            log.info("I {}",i);
         }
 
         // 从后向前替换，避免位置偏移
@@ -150,6 +149,7 @@ public class SensitiveWordUtil {
             int[] pos = positions.get(i);
             result.replace(pos[0], pos[1], REPLACEMENT);
         }
+        log.info("result {}",result);
 
         return result.toString();
     }

@@ -27,7 +27,7 @@ public class AesEncryptUtil {
     /**
      * 密钥（16字节）
      */
-    private static final String SECRET_KEY = "niyongyuancaibudao";
+    private static final String SECRET_KEY = "niyongyuancaibud";
 
     /**
      * 加密文本
