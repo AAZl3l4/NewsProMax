@@ -3,12 +3,14 @@ package com.AAZl3l4.NewsService.controller;
 import com.AAZl3l4.NewsService.pojo.Article;
 import com.AAZl3l4.NewsService.pojo.ArticleSearchParam;
 import com.AAZl3l4.NewsService.service.ArticleService;
+import com.AAZl3l4.NewsService.utils.BloomFilterUtil;
 import com.AAZl3l4.common.utils.Result;
 import com.AAZl3l4.common.utils.SensitiveWordUtil;
 import com.AAZl3l4.common.utils.UserTool;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,10 +23,12 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/article")
 @RequiredArgsConstructor
+@Slf4j
 public class ArticleController {
 
     private final ArticleService service;
     private final RedisTemplate redisTemplate;
+    private final BloomFilterUtil bloomFilterUtil;
 
     @PostMapping("/add")
     @Operation(summary = "新增文章")
@@ -39,7 +43,12 @@ public class ArticleController {
         a.setTitle(SensitiveWordUtil.replaceSensitiveWords(a.getTitle()));
         a.setContent(SensitiveWordUtil.replaceSensitiveWords(a.getContent()));
         Article save = service.save(a);
-        return save == null ? Result.error("保存失败") : Result.succeed("保存成功");
+        if (save != null) {
+            // 添加到布隆过滤器
+            bloomFilterUtil.put(String.valueOf(save.getArticleId()));
+            return Result.succeed("保存成功");
+        }
+        return Result.error("保存失败");
     }
 
     @PostMapping("/delete/{id}")
@@ -80,6 +89,11 @@ public class ArticleController {
     @GetMapping("/{id}")
     @Operation(summary = "根据主键查询")
     public Result find(@PathVariable Long id) {
+        // 布隆过滤器判断文章是否可能存在，不存在则直接返回
+        if (bloomFilterUtil.definitelyNotContain(String.valueOf(id))) {
+            log.info("布隆过滤器判断 文章不存在");
+            return Result.error("文章不存在");
+        }
         String key = "article:" + id;
         Object cache = redisTemplate.opsForValue().get(key);
         if (cache != null) {

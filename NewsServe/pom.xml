@@ -25,6 +25,13 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!--  Guava BloomFilter  -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.1.3-jre</version>
+        </dependency>
+
         <!--  es  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
