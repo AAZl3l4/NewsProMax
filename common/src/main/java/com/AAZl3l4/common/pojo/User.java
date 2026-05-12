@@ -1,6 +1,8 @@
 package com.AAZl3l4.common.pojo;
 
+import com.AAZl3l4.common.configuration.AesEncryptTypeHandler;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -43,6 +45,7 @@ public class User implements Serializable {
 
     @Schema(description = "密码")
     @NotEmpty
+    @TableField(typeHandler = AesEncryptTypeHandler.class)
     private String password;
 
     @Schema(description = "头像")
@@ -50,6 +53,7 @@ public class User implements Serializable {
 
     @Schema(description = "邮箱")
     @Email
+    @TableField(typeHandler = AesEncryptTypeHandler.class)
     private String email;
 
     @Schema(description = "年龄")
