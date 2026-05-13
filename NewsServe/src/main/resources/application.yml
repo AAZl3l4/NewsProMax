@@ -92,6 +92,12 @@ logging:
 #  level:
 #    tracer: TRACE
 
+# OCR配置
+ocr:
+  tessdata:
+    path: e:/ACodes/News/NewsProMax/NewsServe/src/main/resources/tessdata
+  language: chi_sim+eng
+
 
 
 seata:
