@@ -32,7 +32,6 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         String path = request.getURI().getPath();
         if ("/user-serve/login".equals(path) ||
                 "/user-serve/register".equals(path) ||
-                "/user-serve/logout".equals(path) ||
                 "/user-serve/authcode/getimg".equals(path) ||
                 "/user-serve/authcode/getemail".equals(path) ||
                 "/user-serve/pay/callback".equals(path)||
